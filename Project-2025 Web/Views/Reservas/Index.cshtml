@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Reservas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-success">Formulario de Reservas</h2>
+
+    <form method="post" action="/Reservas/Enviar">
+        <div class="mb-3">
+            <label class="form-label">Fecha de reserva</label>
+            <input type="date" class="form-control" name="fecha" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Seleccione el plan</label>
+            <select class="form-select" name="plan">
+                <option>Hidrosenderismo Cascada El Perro</option>
+                <option>Día de Sol Botepaseo (Tubing)</option>
+                <option> Senderismo Velo de Novia</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Número de personas</label>
+            <input type="number" class="form-control" name="personas" min="1" max="10" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Reservar</button>
+    </form>
+</div>
