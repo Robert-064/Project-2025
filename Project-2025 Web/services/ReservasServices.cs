@@ -13,6 +13,7 @@ namespace Project_2025_Web.Services
         Task<Response<object>> DeleteAsync(int id);
         Task<Response<ReservationDTO>> GetOne(int id);
         Task<Response<List<Reservation>>> GetListAsync();
+        Task<Response<List<ReservationDTO>>> GetUserReservationsAsync(int userId);
     }
 
 
@@ -188,6 +189,39 @@ namespace Project_2025_Web.Services
             catch (Exception ex)
             {
                 return new Response<List<Reservation>>
+                {
+                    IsSucess = false,
+                    Message = ex.Message
+                };
+            }
+        }
+        public async Task<Response<List<ReservationDTO>>> GetUserReservationsAsync(int userId)
+        {
+            try
+            {
+                var reservations = await _context.Reservations
+                    .Where(r => r.Id_User == userId)
+                    .Select(r => new ReservationDTO
+                    {
+                        Id = r.Id,
+                        Id_Plan = r.Id_Plan,
+                        Id_User = r.Id_User,
+                        Date = r.Date,
+                        Status = r.Status,
+                        Person_Number = r.Person_Number
+                    })
+                    .ToListAsync();
+
+                return new Response<List<ReservationDTO>>
+                {
+                    IsSucess = true,
+                    Message = "Reservas del usuario obtenidas con éxito",
+                    Result = reservations
+                };
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<ReservationDTO>>
                 {
                     IsSucess = false,
                     Message = ex.Message

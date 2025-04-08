@@ -1,9 +1,13 @@
-﻿public class ReservationsController : Controller
-{
-    private readonly IReservaService _reservaService;
-    private readonly IPaqueteService _paqueteService;
+﻿using Microsoft.AspNetCore.Mvc;
+using Project_2025_Web.DTOs;
+using Project_2025_Web.Services;
 
-    public ReservationsController(IReservaService reservaService, IPaqueteService paqueteService)
+public class ReservationsController : Controller
+{
+    private readonly IReservationService _reservaService;
+    private readonly IPlanService _paqueteService;
+
+    public ReservationsController(IReservationService reservaService, IPlanService paqueteService)
     {
         _reservaService = reservaService;
         _paqueteService = paqueteService;
@@ -20,24 +24,19 @@
 
         var model = new ReservationDTO
         {
-            PaqueteId = paqueteId,
-            PaqueteName = paquete.Name,
-            Difficulty = paquete.Difficulty,
-            Distance = paquete.Distance,
-            MinPeople = paquete.MinPeople,
-            MaxPeople = paquete.MaxPeople
+            Id_Plan = paqueteId,
         };
 
         return View(model);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(ReservaDTO model)
+    public async Task<IActionResult> Create(ReservationDTO model)
     {
         if (ModelState.IsValid)
         {
-            var result = await _reservaService.CreateReservationAsync(model);
-            if (result.IsSuccess)
+            var result = await _reservaService.CreateAsync(model);
+            if (result.IsSucess)
             {
                 return RedirectToAction("Index", "Home");
             }
@@ -53,16 +52,16 @@
     [HttpGet]
     public async Task<IActionResult> MyReservations()
     {
-        var userName = User.Identity.Name;  
-        var reservas = await _reservaService.GetUserReservationsAsync(userName);
+        var userId = int.Parse(User.FindFirst("UserId").Value); 
+        var reservas = await _reservaService.GetUserReservationsAsync(userId); 
         return View(reservas);
     }
 
     [HttpPost]
     public async Task<IActionResult> Cancel(int reservationId)
     {
-        var result = await _reservaService.CancelReservationAsync(reservationId);
-        if (result.IsSuccess)
+        var result = await _reservaService.DeleteAsync(reservationId);
+        if (result.IsSucess)
         {
             TempData["SuccessMessage"] = result.Message;
         }

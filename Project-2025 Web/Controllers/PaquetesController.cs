@@ -8,7 +8,7 @@ namespace Project_2025_Web.Controllers
     {
         private readonly IPlanService _paqueteService;
 
-        public PaquetesController(IPaqueteService paqueteService)
+        public PaquetesController(IPlanService paqueteService)
         {
             _paqueteService = paqueteService;
         }

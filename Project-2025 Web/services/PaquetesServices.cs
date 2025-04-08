@@ -12,6 +12,8 @@ namespace Project_2025_Web.Services
         Task<Response<object>> DeleteAsync(int id);
         Task<Response<PlanDTO>> GetOne(int id);
         Task<Response<List<Plan>>> GetListAsync();
+        Task<List<Plan>> GetAllPaquetesAsync();
+        Task<Plan?> GetPaqueteByIdAsync(int id);
     }
 
     public class PlanService : IPlanService
@@ -193,6 +195,29 @@ namespace Project_2025_Web.Services
                     IsSucess = false,
                     Message = ex.Message
                 };
+            }
+        }
+        public async Task<List<Plan>> GetAllPaquetesAsync()
+        {
+            try
+            {
+                return await _context.Plans.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener la lista de paquetes", ex);
+            }
+        }
+
+        public async Task<Plan?> GetPaqueteByIdAsync(int id)
+        {
+            try
+            {
+                return await _context.Plans.FirstOrDefaultAsync(p => p.Id == id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener el paquete con ID {id}", ex);
             }
         }
     }
