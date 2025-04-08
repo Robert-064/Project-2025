@@ -18,7 +18,7 @@
             return NotFound();
         }
 
-        var model = new ReservaDTO
+        var model = new ReservationDTO
         {
             PaqueteId = paqueteId,
             PaqueteName = paquete.Name,

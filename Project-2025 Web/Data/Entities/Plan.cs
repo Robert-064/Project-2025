@@ -23,6 +23,10 @@ namespace Project_2025_Web.Data.Entities
 
         [Range(1, 1000, ErrorMessage = "Debe haber al menos 1 persona y como máximo 1000")]
         public int Max_Persons { get; set; }
+
+        [Range(0, 10000, ErrorMessage = "La distancia debe estar entre 0 y 10000 km")]
+        [Display(Name = "Distancia en kilómetros")]
+        public double Distance { get; set; }
     }
 }
 

@@ -6,7 +6,7 @@ namespace Project_2025_Web.Controllers
 {
     public class PaquetesController : Controller
     {
-        private readonly IPaqueteService _paqueteService;
+        private readonly IPlanService _paqueteService;
 
         public PaquetesController(IPaqueteService paqueteService)
         {
