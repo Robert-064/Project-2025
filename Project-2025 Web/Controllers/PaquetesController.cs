@@ -16,8 +16,8 @@ namespace Project_2025_Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var paquetes = await _paqueteService.GetAllPaquetesAsync();
-            return View(paquetes);
+           // var paquetes = await _paqueteService.GetAllPaquetesAsync();
+            return View();
         }
 
         [HttpGet]

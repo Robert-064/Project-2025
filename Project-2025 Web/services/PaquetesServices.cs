@@ -183,7 +183,7 @@ namespace Project_2025_Web.Services
                 var list = await _context.Plans.ToListAsync();
                 return new Response<List<Plan>>
                 {
-                    IsSucess = true,
+                    IsSucess = true, 
                     Message = "Lista de planes obtenida con éxito",
                     Result = list
                 };
@@ -192,6 +192,7 @@ namespace Project_2025_Web.Services
             {
                 return new Response<List<Plan>>
                 {
+                    
                     IsSucess = false,
                     Message = ex.Message
                 };

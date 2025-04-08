@@ -1,76 +1,122 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Project_2025_Web.DTOs;
 using Project_2025_Web.Services;
+using Project_2025_Web.Models;
+using Project_2025_Web.DTOs;
+using Project_2025_Web.Data.Entities;
 
-public class ReservationsController : Controller
+
+
+namespace Project_2025_Web.Controllers
 {
-    private readonly IReservationService _reservaService;
-    private readonly IPlanService _paqueteService;
-
-    public ReservationsController(IReservationService reservaService, IPlanService paqueteService)
+    public class ReservasController : Controller
     {
-        _reservaService = reservaService;
-        _paqueteService = paqueteService;
-    }
+        private readonly IReservationService _reservationService;
+        private readonly IPlanService _planService;
 
-    [HttpGet]
-    public async Task<IActionResult> Create(int paqueteId)
-    {
-        var paquete = await _paqueteService.GetPaqueteByIdAsync(paqueteId);
-        if (paquete == null)
+        public ReservasController(IReservationService reservationService, IPlanService planService)
         {
-            return NotFound();
+            _reservationService = reservationService;
+            _planService = planService;
         }
 
-        var model = new ReservationDTO
+        public async Task<IActionResult> Index()
         {
-            Id_Plan = paqueteId,
-        };
+            Response<List<ReservationDTO>> response = await _reservationService.GetListAsync();
 
-        return View(model);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create(ReservationDTO model)
-    {
-        if (ModelState.IsValid)
-        {
-            var result = await _reservaService.CreateAsync(model);
-            if (result.IsSucess)
+            if (!response.IsSucess)
             {
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index");
             }
-            else
+            return View(response.Result);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            var planesResponse = await _planService.GetListAsync();
+
+            if (!planesResponse.IsSucess)
             {
-                ModelState.AddModelError("", result.Message);
+                return RedirectToAction("Index");
             }
+
+            ViewBag.Planes = planesResponse.Result; //Para ver las opciones de planes
+
+
+            return View(new ReservationDTO());
         }
 
-        return View(model);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> MyReservations()
-    {
-        var userId = int.Parse(User.FindFirst("UserId").Value); 
-        var reservas = await _reservaService.GetUserReservationsAsync(userId); 
-        return View(reservas);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Cancel(int reservationId)
-    {
-        var result = await _reservaService.DeleteAsync(reservationId);
-        if (result.IsSucess)
+        [HttpPost]
+        public async Task<IActionResult> Create(ReservationDTO dto)
         {
-            TempData["SuccessMessage"] = result.Message;
-        }
-        else
-        {
-            TempData["ErrorMessage"] = result.Message;
+            if (!ModelState.IsValid)
+            {
+                return View(dto);
+            }
+
+            var response = await _reservationService.CreateAsync(dto);
+
+            if (!response.IsSucess)
+            {
+                return View(dto);
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
-        return RedirectToAction(nameof(MyReservations));
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var reservationResponse = await _reservationService.GetOne(id);
+            if (!reservationResponse.IsSucess || reservationResponse.Result == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var planesResponse = await _planService.GetListAsync();
+            if (!planesResponse.IsSucess || planesResponse.Result == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.Planes = planesResponse.Result;
+
+            return View(reservationResponse.Result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(ReservationDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(dto);
+            }
+
+            var response = await _reservationService.EditeAsync(dto);
+
+            if (!response.IsSucess)
+            {
+                return View(dto);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var response = await _reservationService.DeleteAsync(id);
+
+            // Aunque no hay notificaciones, puedes agregar logs si lo deseas
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
     }
+
+
 }
+
 

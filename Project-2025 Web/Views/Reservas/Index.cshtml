@@ -1,31 +1,40 @@
-﻿@{
+﻿@model List<Project_2025_Web.DTOs.ReservationDTO>
+
+@{
     ViewData["Title"] = "Reservas";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4 text-success">Formulario de Reservas</h2>
+<h1>Reservas</h1>
+<a class="btn btn-primary" asp-action="Create">Nueva Reserva</a>
 
-    <form method="post" action="/Reservas/Enviar">
-        <div class="mb-3">
-            <label class="form-label">Fecha de reserva</label>
-            <input type="date" class="form-control" name="fecha" required />
-        </div>
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Plan</th>
+            <th>Usuario</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Número de Personas</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var reserva in Model)
+        {
+                <tr>
+                    <td>@reserva.Id_Plan</td>
+                    <td>@reserva.Id_User</td>
+                    <td>@reserva.Date.ToShortDateString()</td>
+                    <td>@reserva.Status</td>
+                    <td>@reserva.Person_Number</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@reserva.Id" class="btn btn-warning">Editar</a>
+                        <form asp-action="Delete" asp-route-id="@reserva.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>
 
-        <div class="mb-3">
-            <label class="form-label">Seleccione el plan</label>
-            <select class="form-select" name="plan">
-                <option>Hidrosenderismo Cascada El Perro</option>
-                <option>Día de Sol Botepaseo (Tubing)</option>
-                <option> Senderismo Velo de Novia</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Número de personas</label>
-            <input type="number" class="form-control" name="personas" min="1" max="10" required />
-        </div>
-
-        <button type="submit" class="btn btn-primary">Reservar</button>
-    </form>
-</div>

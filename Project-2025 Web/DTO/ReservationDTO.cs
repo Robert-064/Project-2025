@@ -26,7 +26,7 @@ namespace Project_2025_Web.DTOs
         public string Status { get; set; } = null!;
 
         [Range(1, 1000, ErrorMessage = "El número de personas debe estar entre {1} y {2}")]
-        [Display(Name = "Número de Personas")]
+        [Display(Name = "# Personas")]
         public int Person_Number { get; set; }
     }
 }

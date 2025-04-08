@@ -1,0 +1,80 @@
+﻿
+@model Project_2025_Web.DTOs.ReservationDTO
+
+@{
+    ViewData["Title"] = "Editar Reserva";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var planes = ViewBag.Planes as List<Project_2025_Web.Data.Entities.Plan>;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary">Editar Reserva</h2>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label asp-for="Date" class="form-label">Fecha de reserva</label>
+            <input asp-for="Date" type="date" class="form-control" required />
+            <span asp-validation-for="Date" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Id_Plan" class="form-label">Plan</label>
+            <select asp-for="Id_Plan" class="form-select">
+                <option disabled>-- Seleccione un plan --</option>
+                @foreach (var plan in planes)
+                {
+                    if (Model.Id_Plan == plan.Id)
+                    {
+                                <option value="@plan.Id" selected>@plan.Name</option>
+                    }
+                    else
+                    {
+                                <option value="@plan.Id">@plan.Name</option>
+                    }
+                }
+            </select>
+            <span asp-validation-for="Id_Plan" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Person_Number" class="form-label">Número de personas</label>
+            <input asp-for="Person_Number" type="number" min="1" max="10" class="form-control" required />
+            <span asp-validation-for="Person_Number" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Status" class="form-label">Estado</label>
+            <select asp-for="Status" class="form-select">
+                @{
+                    var estados = new List<string> { "Pendiente", "Confirmada", "Cancelada" };
+                    foreach (var estado in estados)
+                    {
+                        if (Model.Status == estado)
+                        {
+                                        <option value="@estado" selected>@estado</option>
+                        }
+                        else
+                        {
+                                        <option value="@estado">@estado</option>
+                        }
+                    }
+                }
+            </select>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+
+        <input type="hidden" asp-for="Id_User" />
+
+        <button type="submit" class="btn btn-success">Guardar Cambios</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+@section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+}
+
+
+
