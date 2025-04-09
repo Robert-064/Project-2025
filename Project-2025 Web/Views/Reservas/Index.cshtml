@@ -29,7 +29,7 @@
                     <td>@reserva.Person_Number</td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@reserva.Id" class="btn btn-warning">Editar</a>
-                        <form asp-action="Delete" asp-route-id="@reserva.Id" method="post" style="display:inline;">
+                                <form asp-action="Delete" asp-route-id="@reserva.Id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este plan?');">
                             <button type="submit" class="btn btn-danger">Eliminar</button>
                         </form>
                     </td>

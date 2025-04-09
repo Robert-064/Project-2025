@@ -22,10 +22,11 @@ namespace Project_2025_Web.DTOs
         [Display(Name = "Precio Básico")]
         public decimal Basic_Price { get; set; }
 
-        [MaxLength(50, ErrorMessage = "El campo {0} debe tener como máximo {1} caracteres")]
+        [Range(1, 5, ErrorMessage = "El campo {0} debe estar entre {1} y {2}")]
         [Required(ErrorMessage = "El campo {0} es obligatorio")]
         [Display(Name = "Tipo de Dificultad")]
-        public string Type_Difficulty { get; set; } = null!;
+        public int Type_Difficulty { get; set; }
+
 
         [Range(1, 1000, ErrorMessage = "El campo {0} debe estar entre {1} y {2}")]
         [Required(ErrorMessage = "El campo {0} es obligatorio")]
@@ -35,6 +36,17 @@ namespace Project_2025_Web.DTOs
         [Required(ErrorMessage = "El campo {0} es obligatorio")]
         [Display(Name = "Distancia (Km)")]
         public double Distance { get; set; }
+
+        [Display(Name = "Imagen 1")]
+        [Required(ErrorMessage = "Debe subir una imagen principal")]
+        public IFormFile ImageFile1 { get; set; } = null!; //Esto es para guardar imagenes
+
+        [Display(Name = "Imagen 2")]
+        [Required(ErrorMessage = "Debe subir una imagen secundaria")]
+        public IFormFile ImageFile2 { get; set; } = null!;
+
+        public string? ImagePath1 { get; set; }
+        public string? ImagePath2 { get; set; }
     }
 }
 

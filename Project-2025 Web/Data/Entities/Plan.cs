@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Project_2025_Web.Data;
 
 namespace Project_2025_Web.Data.Entities
 {
@@ -18,15 +19,18 @@ namespace Project_2025_Web.Data.Entities
         [DataType(DataType.Currency)]
         public decimal Basic_Price { get; set; }
 
-        [StringLength(50, ErrorMessage = "El tipo de dificultad no puede tener más de 50 caracteres")]
-        public string Type_Difficulty { get; set; } = null!;
+        [Range(1, 5, ErrorMessage = "La dificultad debe estar entre 1 y 5")]
+        public int Type_Difficulty { get; set; }
 
-        [Range(1, 1000, ErrorMessage = "Debe haber al menos 1 persona y como máximo 1000")]
+        [Range(1, 100, ErrorMessage = "Debe haber al menos 1 persona y como máximo 100")]
         public int Max_Persons { get; set; }
 
-        [Range(0, 10000, ErrorMessage = "La distancia debe estar entre 0 y 10000 km")]
+        [Range(0, 100, ErrorMessage = "La distancia debe estar entre 0 y 100 km")]
         [Display(Name = "Distancia en kilómetros")]
         public double Distance { get; set; }
+
+        public string? ImageUrl1 { get; set; }
+        public string? ImageUrl2 { get; set; }
     }
 }
 

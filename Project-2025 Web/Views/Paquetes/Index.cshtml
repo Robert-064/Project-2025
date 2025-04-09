@@ -1,75 +1,49 @@
-﻿@{
-    ViewData["Title"] = "Paquetes Turísticos";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+﻿@model List<Project_2025_Web.DTOs.PlanDTO>
 
 @{
-    ViewData["Title"] = "Paquetes";
+    ViewData["Title"] = "Paquetes Turísticos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container mt-5">
     <h2 class="text-center mb-4">Nuestros Tours</h2>
 
-    <div class="card mb-4 shadow-sm">
-        <div class="card-body">
-            <h4 class="card-title">🏞️ Senderismo Velo de Novia</h4>
-            <p class="card-text">
-                Caminata ecológica por senderos naturales hasta llegar a la majestuosa cascada "Velo de Novia",
-                rodeada de bosque y biodiversidad local. Ideal para quienes buscan conexión con la naturaleza.
-            </p>
-            <div class="row">
-                <div class="col-md-6">
-                    <img src="~/images/velo (1).jpeg" alt="Cascada Velo de Novia 1" class="img-fluid rounded shadow" />
+    @foreach (var plan in Model)
+    {
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">🌄 @plan.Name</h4>
+                    <p class="card-text">@plan.Description</p>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <img src="@plan.ImagePath1" alt="Imagen 1 de @plan.Name" class="img-fluid rounded shadow" />
+                        </div>
+                        <div class="col-md-6">
+                            <img src="@plan.ImagePath2" alt="Imagen 2 de @plan.Name" class="img-fluid rounded shadow" />
+                        </div>
+                    </div>
+
+                    <p><strong>Precio:</strong> $@plan.Basic_Price</p>
+                    <p><strong>Dificultad:</strong> @plan.Type_Difficulty/5</p>
+                    <p><strong>Distancia:</strong> @plan.Distance km</p>
+                    <p><strong>Máximo de Personas:</strong> @plan.Max_Persons</p>
+
+                            <div class="text-end d-flex justify-content-end gap-2">
+                                <form asp-action="Delete" asp-controller="Paquetes" method="post" asp-route-id="@plan.Id" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este plan?');">
+                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                </form>
+
+                                <a href="@Url.Action("Edit", "Paquetes", new { id = plan.Id })" class="btn btn-warning">Editar</a>
+                            </div>
+
+
                 </div>
-                <div class="col-md-6">
-                    <img src="~/images/velo (2).jpeg" alt="Cascada Velo de Novia 2" class="img-fluid rounded shadow" />
-                </div>
-                
             </div>
-            <p><strong>Precio:</strong> $80.000</p>
-            <p><strong>Dificultad:</strong> 3/5</p>
-            <p><strong>Distancia:</strong> 9 km</p>
-            <p><strong>Maximo de Personas:</strong> 30</p>
-        </div>
-    </div>
+    }
 
-    <div class="card mb-4 shadow-sm">
-        <div class="card-body">
-            <h4 class="card-title">💧 Hidrosenderismo Cascada El Perro</h4>
-            <p class="card-text">
-                Recorrido a pie por el cauce del río, combinando aventura, agua y naturaleza hasta llegar a la imponente
-                Cascada El Perro. Se disfruta caminando entre rocas, charcos y corrientes suaves.
-            </p>
-            <div class="d-flex gap-3">
-                <img src="~/images/perro (1).jpeg" alt=" Hidrosenderismo Cascada El Perro 1" class="img-thumbnail" style="width: 400px; height: 250px; object-fit: cover;" />
-                <img src="~/images/perro (2).jpeg" alt=" Hidrosenderismo Cascada El Perro 2" class="img-thumbnail" style="width: 400px; height: 250px; object-fit: cover;" />
-            </div>
-
-            
-            <p><strong>Precio:</strong> $60.000</p>
-            <p><strong>Dificultad:</strong> 2/5</p>
-            <p><strong>Distancia:</strong> 3 km</p>
-            <p><strong>Maximo de Personas:</strong> 30</p>
-        </div>
-    </div>
-
-    <div class="card mb-4 shadow-sm">
-        <div class="card-body">
-            <h4 class="card-title">☀️ Día de Sol Botepaseo (Tubing)</h4>
-            <p class="card-text">
-                Plan de descanso y recreación en un entorno natural. Incluye paseo en neumático (tubing) por el río,
-                tiempo para relajarse, disfrutar del agua y compartir en grupo.
-            </p>
-            <div class="d-flex gap-3">
-                <img src="~/images/bote (1).jpeg" alt="Día de Sol Botepaseo (Tubing) 1" class="img-thumbnail" style="width: 400px; height: 250px; object-fit: cover;" />
-                <img src="~/images/bote (2).jpeg" alt="Día de Sol Botepaseo (Tubing) 2" class="img-thumbnail" style="width: 400px; height: 250px; object-fit: cover;" />
-            </div>
-
-           
-            <p><strong>Precio:</strong> $50.000</p>
-            <p><strong>Dificultad:</strong> 0/5</p>
-            <p><strong>Distancia:</strong> 3 km (por el río)</p>
-            <p><strong>Maximo de Personas:</strong> 50</p>
-        </div>
+    <div class="text-center mt-4">
+        <a href="@Url.Action("Create", "Paquetes")" class="btn btn-primary">Añadir Plan</a>
     </div>
 </div>
+
