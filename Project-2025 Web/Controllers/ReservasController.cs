@@ -45,8 +45,8 @@ namespace Project_2025_Web.Controllers
 
             return View(new ReservationDTO());
         }
-
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ReservationDTO dto)
         {
             if (!ModelState.IsValid)
@@ -55,14 +55,18 @@ namespace Project_2025_Web.Controllers
             }
 
             var response = await _reservationService.CreateAsync(dto);
-
             if (!response.IsSucess)
             {
+                ModelState.AddModelError(string.Empty, response.Message);
                 return View(dto);
             }
 
+            TempData["mensaje"] = "¡Tu reserva ha sido exitosa!";
+            TempData["tipo"] = "success";
             return RedirectToAction(nameof(Index));
         }
+
+        
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -85,6 +89,7 @@ namespace Project_2025_Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ReservationDTO dto)
         {
             if (!ModelState.IsValid)
@@ -96,18 +101,32 @@ namespace Project_2025_Web.Controllers
 
             if (!response.IsSucess)
             {
+                ModelState.AddModelError(string.Empty, response.Message);
                 return View(dto);
             }
 
+            TempData["mensaje"] = "¡Reserva actualizada con éxito!";
+            TempData["tipo"] = "success";
             return RedirectToAction(nameof(Index));
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> Delete(int id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var response = await _reservationService.DeleteAsync(id);
 
-            // Aunque no hay notificaciones, puedes agregar logs si lo deseas
+            if (!response.IsSucess)
+            {
+                TempData["mensaje"] = "Error al eliminar la reserva: " + response.Message;
+                TempData["tipo"] = "danger";
+            }
+            else
+            {
+                TempData["mensaje"] = "¡Reserva eliminada con éxito!";
+                TempData["tipo"] = "success";
+            }
 
             return RedirectToAction(nameof(Index));
         }

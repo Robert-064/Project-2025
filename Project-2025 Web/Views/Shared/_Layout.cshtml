@@ -33,7 +33,9 @@
         </div>
     </nav>
 
-  
+    <!-- TOASTR CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
     </header>
     <div class="container">
         <main role="main" class="pb-3">
@@ -51,5 +53,75 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- jQuery (Toastr depende de jQuery) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- TOASTR JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Script para mostrar mensajes desde TempData -->
+    <script>
+        $(function () {
+            var mensaje = '@TempData["mensaje"]';
+            var tipo = '@TempData["tipo"]';
+
+            if (mensaje && tipo) {
+                toastr.options = {
+                    "closeButton": true,
+                    "progressBar": true,
+                    "positionClass": "toast-bottom-right",
+                    "timeOut": "3000"
+                };
+
+                switch (tipo) {
+                    case "success":
+                        toastr.success(mensaje);
+                        break;
+                    case "error":
+                        toastr.error(mensaje);
+                        break;
+                    case "info":
+                        toastr.info(mensaje);
+                        break;
+                    case "warning":
+                        toastr.warning(mensaje);
+                        break;
+                }
+            }
+        });
+    </script>
+    <!-- jQuery + Toastr.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
+    <script>
+        $(function () {
+            var mensaje = '@TempData["mensaje"]';
+            var tipo = '@TempData["tipo"]';
+
+            if (mensaje && tipo) {
+                toastr.options = {
+                    "closeButton": true,
+                    "progressBar": true,
+                    "positionClass": "toast-bottom-right",
+                    "timeOut": "3000"
+                };
+
+                switch (tipo) {
+                    case "success":
+                        toastr.success(mensaje);
+                        break;
+                    case "error":
+                        toastr.error(mensaje);
+                        break;
+                }
+            }
+        });
+    </script>
+
+
+
 </body>
 </html>

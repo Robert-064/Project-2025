@@ -47,6 +47,8 @@ namespace Project_2025_Web.Controllers
                 ModelState.AddModelError(string.Empty, response.Message);
                 return View(dto);
             }
+            TempData["mensaje"] = "¡Plan editado con éxito!";
+            TempData["tipo"] = "success";
 
             return RedirectToAction("Index"); // o el nombre de la vista principal de Planes
         }
@@ -70,6 +72,8 @@ namespace Project_2025_Web.Controllers
 
             if (response.IsSucess)
             {
+                TempData["mensaje"] = "¡Plan creado con éxito!";
+                TempData["tipo"] = "success";
                 return RedirectToAction("Index");
             }
 
@@ -77,6 +81,7 @@ namespace Project_2025_Web.Controllers
             ModelState.AddModelError(string.Empty, response.Message);
             return View(dto);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -86,12 +91,20 @@ namespace Project_2025_Web.Controllers
 
             if (response.IsSucess)
             {
+                TempData["mensaje"] = "¡Eliminado con éxito!";
+                TempData["tipo"] = "success";
                 return RedirectToAction("Index");
             }
 
             TempData["ErrorMessage"] = response.Message;
+            TempData["tipo"] = "error";
             return RedirectToAction("Index");
         }
+
+
+
+
     }
 }
+
 
