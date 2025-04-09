@@ -113,7 +113,7 @@ namespace Project_2025_Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var response = await _reservationService.DeleteAsync(id);
 
