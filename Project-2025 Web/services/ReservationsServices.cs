@@ -2,42 +2,78 @@
 using Project_2025_Web.Data.Entities;
 using Project_2025_Web.DTOs;
 using Microsoft.EntityFrameworkCore;
-
+using Project_2025_Web.DTO;
+using AutoMapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Project_2025_Web.Services
 {
     public interface IReservationService
     {
         Task<Response<Reservation>> CreateAsync(ReservationDTO dto);
-        Task<Response<Reservation>> EditeAsync(ReservationDTO dto);
+        Task<Response<Reservation>> EditAsync(ReservationDTO dto);
         Task<Response<object>> DeleteAsync(int id);
-        Task<Response<ReservationDTO>> GetOne(int id);
+        Task<Response<ReservationDTO>> GetOneAsync(int id);
         Task<Response<List<ReservationDTO>>> GetListAsync();
         Task<Response<List<ReservationDTO>>> GetUserReservationsAsync(int userId);
+        Task<List<Reservation>> GetReservationPagedAsync(int pageNumber, int pageSize);
+        Task<int> GetReservationCountAsync();
+        Task<List<ReservationDTO>> GetFilteredAsync(ReservationFilterDTO filter);
     }
-
 
     public class ReservationService : IReservationService
     {
         private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        public ReservationService(DataContext context)
+        public ReservationService(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
+        }
+
+        public async Task<List<ReservationDTO>> GetFilteredAsync(ReservationFilterDTO filter)
+        {
+            var query = _context.Reservations.AsQueryable();
+
+            if (!string.IsNullOrEmpty(filter.Status))
+                query = query.Where(r => r.Status == filter.Status);
+
+            if (filter.UserId.HasValue)
+                query = query.Where(r => r.Id_User == filter.UserId.Value);
+
+            if (filter.DateFrom.HasValue)
+                query = query.Where(r => r.Date >= filter.DateFrom.Value);
+
+            if (filter.DateTo.HasValue)
+                query = query.Where(r => r.Date <= filter.DateTo.Value);
+
+            var list = await query.ToListAsync();
+
+            return _mapper.Map<List<ReservationDTO>>(list);
+        }
+
+        public async Task<List<Reservation>> GetReservationPagedAsync(int pageNumber, int pageSize)
+        {
+            return await _context.Reservations
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+        public async Task<int> GetReservationCountAsync()
+        {
+            return await _context.Reservations.CountAsync();
         }
 
         public async Task<Response<Reservation>> CreateAsync(ReservationDTO dto)
         {
             try
             {
-                var reservation = new Reservation
-                {
-                    Id_Plan = dto.Id_Plan,
-                    Id_User = dto.Id_User,
-                    Date = dto.Date,
-                    Status = dto.Status,
-                    Person_Number = dto.Person_Number
-                };
+                var reservation = _mapper.Map<Reservation>(dto);
 
                 await _context.Reservations.AddAsync(reservation);
                 await _context.SaveChangesAsync();
@@ -59,7 +95,7 @@ namespace Project_2025_Web.Services
             }
         }
 
-        public async Task<Response<Reservation>> EditeAsync(ReservationDTO dto)
+        public async Task<Response<Reservation>> EditAsync(ReservationDTO dto)
         {
             try
             {
@@ -73,11 +109,7 @@ namespace Project_2025_Web.Services
                     };
                 }
 
-                reservation.Id_Plan = dto.Id_Plan;
-                reservation.Id_User = dto.Id_User;
-                reservation.Date = dto.Date;
-                reservation.Status = dto.Status;
-                reservation.Person_Number = dto.Person_Number;
+                _mapper.Map(dto, reservation);
 
                 _context.Reservations.Update(reservation);
                 await _context.SaveChangesAsync();
@@ -133,7 +165,7 @@ namespace Project_2025_Web.Services
             }
         }
 
-        public async Task<Response<ReservationDTO>> GetOne(int id)
+        public async Task<Response<ReservationDTO>> GetOneAsync(int id)
         {
             try
             {
@@ -147,15 +179,7 @@ namespace Project_2025_Web.Services
                     };
                 }
 
-                var dto = new ReservationDTO
-                {
-                    Id = reservation.Id,
-                    Id_Plan = reservation.Id_Plan,
-                    Id_User = reservation.Id_User,
-                    Date = reservation.Date,
-                    Status = reservation.Status,
-                    Person_Number = reservation.Person_Number
-                };
+                var dto = _mapper.Map<ReservationDTO>(reservation);
 
                 return new Response<ReservationDTO>
                 {
@@ -178,15 +202,7 @@ namespace Project_2025_Web.Services
         {
             var reservations = await _context.Reservations.ToListAsync();
 
-            var dtos = reservations.Select(r => new ReservationDTO
-            {
-                Id = r.Id,
-                Id_Plan = r.Id_Plan,
-                Id_User = r.Id_User,
-                Date = r.Date,
-                Status = r.Status,
-                Person_Number = r.Person_Number
-            }).ToList();
+            var dtos = _mapper.Map<List<ReservationDTO>>(reservations);
 
             return new Response<List<ReservationDTO>>
             {
@@ -194,28 +210,22 @@ namespace Project_2025_Web.Services
                 IsSucess = true
             };
         }
+
         public async Task<Response<List<ReservationDTO>>> GetUserReservationsAsync(int userId)
         {
             try
             {
                 var reservations = await _context.Reservations
                     .Where(r => r.Id_User == userId)
-                    .Select(r => new ReservationDTO
-                    {
-                        Id = r.Id,
-                        Id_Plan = r.Id_Plan,
-                        Id_User = r.Id_User,
-                        Date = r.Date,
-                        Status = r.Status,
-                        Person_Number = r.Person_Number
-                    })
                     .ToListAsync();
+
+                var dtos = _mapper.Map<List<ReservationDTO>>(reservations);
 
                 return new Response<List<ReservationDTO>>
                 {
                     IsSucess = true,
                     Message = "Reservas del usuario obtenidas con éxito",
-                    Result = reservations
+                    Result = dtos
                 };
             }
             catch (Exception ex)
@@ -229,6 +239,7 @@ namespace Project_2025_Web.Services
         }
     }
 }
+
 
 
 

@@ -3,6 +3,8 @@ using Project_2025_Web.Data.Entities;
 using Project_2025_Web.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
+using AutoMapper;
+using Humanizer;
 
 namespace Project_2025_Web.Services
 {
@@ -13,20 +15,38 @@ namespace Project_2025_Web.Services
         Task<Response<Plan>> DeleteAsync(int id);
         Task<Response<PlanDTO>> GetOne(int id);
         Task<Response<List<Plan>>> GetListAsync();
-        Task<List<PlanDTO>> GetAllPaquetesAsync();
-        Task<PlanDTO?> GetPaqueteByIdAsync(int id);
+        Task<List<PlanDTO>> GetAllPackagesAsync();
+        Task<PlanDTO?> GetPackageByIdAsync(int id);
+        Task<List<Plan>> GetPlansPagedAsync(int pageNumber, int pageSize);
 
+        Task<int> GetPlansCountAsync();
 
     }
 
     public class PlanService : IPlanService
     {
         private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        public PlanService(DataContext context)
+        public PlanService(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
+
+        public async Task<List<Plan>> GetPlansPagedAsync(int pageNumber, int pageSize)
+        {
+            return await _context.Plans
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+        public async Task<int> GetPlansCountAsync()
+        {
+            return await _context.Plans.CountAsync();
+        }
+
 
         public async Task<Response<Plan>> CreateAsync(PlanDTO dto)
         {
@@ -68,17 +88,11 @@ namespace Project_2025_Web.Services
                 imagePath1 = await SaveImageAsync(dto.ImageFile1); //Aqui se emplea el metodo de validacion
                 imagePath2 = await SaveImageAsync(dto.ImageFile2);
 
-                Plan plan = new Plan
-                {
-                    Name = dto.Name,
-                    Description = dto.Description,
-                    Basic_Price = dto.Basic_Price,
-                    Type_Difficulty = dto.Type_Difficulty,
-                    Max_Persons = dto.Max_Persons,
-                    Distance = dto.Distance,
-                    ImageUrl1 = imagePath1,
-                    ImageUrl2 = imagePath2
-                };
+
+
+                Plan plan = _mapper.Map<Plan>(dto);
+
+
 
                 await _context.Plans.AddAsync(plan);
                 await _context.SaveChangesAsync();
@@ -273,16 +287,7 @@ namespace Project_2025_Web.Services
                     };
                 }
 
-                PlanDTO dto = new PlanDTO
-                {
-                    Id = plan.Id,
-                    Name = plan.Name,
-                    Description = plan.Description,
-                    Basic_Price = plan.Basic_Price,
-                    Type_Difficulty = plan.Type_Difficulty,
-                    Max_Persons = plan.Max_Persons,
-                    Distance = plan.Distance
-                };
+                PlanDTO dto = _mapper.Map<PlanDTO>(plan);
 
                 return new Response<PlanDTO>
                 {
@@ -323,7 +328,7 @@ namespace Project_2025_Web.Services
                 };
             }
         }
-        public async Task<List<PlanDTO>> GetAllPaquetesAsync()
+        public async Task<List<PlanDTO>> GetAllPackagesAsync()
         {
             try
             {
@@ -346,12 +351,12 @@ namespace Project_2025_Web.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Error al obtener la lista de paquetes", ex);
+                throw new Exception("Error al obtener la lista de Packages", ex);
             }
         }
 
 
-        public async Task<PlanDTO?> GetPaqueteByIdAsync(int id)
+        public async Task<PlanDTO?> GetPackageByIdAsync(int id)
         {
             try
             {
@@ -373,7 +378,7 @@ namespace Project_2025_Web.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error al obtener el paquete con ID {id}", ex);
+                throw new Exception($"Error al obtener el Package con ID {id}", ex);
             }
         }
     }

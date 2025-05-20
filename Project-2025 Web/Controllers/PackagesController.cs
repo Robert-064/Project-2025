@@ -5,25 +5,34 @@ using Project_2025_Web.DTOs;
 
 namespace Project_2025_Web.Controllers
 {
-    public class PaquetesController : Controller
+    public class PackagesController : Controller
     {
-        private readonly IPlanService _paqueteService;
+        private readonly IPlanService _Packageservice;
 
-        public PaquetesController(IPlanService paqueteService)
+        public PackagesController(IPlanService Packageservice)
         {
-            _paqueteService = paqueteService;
+            _Packageservice = Packageservice;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var paquetes = await _paqueteService.GetAllPaquetesAsync();
-            return View(paquetes);
+            int pageSize = 2;
+
+            var plans = await _Packageservice.GetPlansPagedAsync(page, pageSize);
+
+            int totalPlans = await _Packageservice.GetPlansCountAsync();
+            int totalPages = (int)Math.Ceiling((double)totalPlans / pageSize);
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
+            return View(plans);
         }
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var planDto = await _paqueteService.GetPaqueteByIdAsync(id);
+            var planDto = await _Packageservice.GetPackageByIdAsync(id);
             if (planDto == null)
             {
                 return RedirectToAction("Index");
@@ -41,7 +50,7 @@ namespace Project_2025_Web.Controllers
                 return View(dto);
             }
 
-            var response = await _paqueteService.EditeAsync(dto);
+            var response = await _Packageservice.EditeAsync(dto);
             if (!response.IsSucess)
             {
                 ModelState.AddModelError(string.Empty, response.Message);
@@ -68,7 +77,7 @@ namespace Project_2025_Web.Controllers
                 return View(dto);
             }
 
-            var response = await _paqueteService.CreateAsync(dto);
+            var response = await _Packageservice.CreateAsync(dto);
 
             if (response.IsSucess)
             {
@@ -87,7 +96,7 @@ namespace Project_2025_Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var response = await _paqueteService.DeleteAsync(id);
+            var response = await _Packageservice.DeleteAsync(id);
 
             if (response.IsSucess)
             {

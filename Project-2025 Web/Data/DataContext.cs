@@ -25,7 +25,7 @@ namespace Project_2025_Web.Data
             // Relación: Plan - Reservation (uno a muchos)
             modelBuilder.Entity<Reservation>()
                 .HasOne(r => r.Plan)
-                .WithMany() // si luego quieres tener una lista de reservas en Plan, aquí puedes poner .WithMany(p => p.Reservations)
+                .WithMany() // si luego quieres tener una lista de Reservations en Plan, aquí puedes poner .WithMany(p => p.Reservations)
                 .HasForeignKey(r => r.Id_Plan)
                 .OnDelete(DeleteBehavior.Cascade);
         }

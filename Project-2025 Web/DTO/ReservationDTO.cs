@@ -17,7 +17,7 @@ namespace Project_2025_Web.DTOs
 
         [Required(ErrorMessage = "El campo {0} es obligatorio")]
         [DataType(DataType.Date)]
-        [Display(Name = "Fecha de Reserva")]
+        [Display(Name = "Fecha de Reservation")]
         public DateTime Date { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es obligatorio")]
