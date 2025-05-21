@@ -1,15 +1,26 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Project_2025_Web.Models;
+using Project_2025_Web.ViewModels; // Usamos solo este
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
 using Project_2025_Web.Data;
 using System.Linq;
 using System;
+using Project_2025_Web.Data.Entities;
+using Project_2025_Web.Services;
 
 namespace Project_2025_Web.Controllers
 {
     public class AuthController : Controller
     {
+        private readonly DataContext _context;
+        private readonly IUserService _userService;
+
+        public AuthController(DataContext context, IUserService userService)
+        {
+            _context = context;
+            _userService = userService;
+        }
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -25,9 +36,10 @@ namespace Project_2025_Web.Controllers
                 return View(model);
             }
 
-            if (model.Email == "admin@demo.com" && model.Password == "123456")
+            var user = _context.Users.FirstOrDefault(u => u.Email == model.Email && u.PasswordHash == model.Password);
+            if (user != null)
             {
-                HttpContext.Session.SetString("UsuarioEmail", model.Email);
+                HttpContext.Session.SetString("UsuarioEmail", user.Email);
 
                 TempData["mensaje"] = "Inicio de sesión exitoso.";
                 TempData["tipo"] = "success";
@@ -44,14 +56,13 @@ namespace Project_2025_Web.Controllers
         public async Task<IActionResult> Logout()
         {
             HttpContext.Session.Clear();
-            // await HttpContext.SignOutAsync();
             return RedirectToAction("Login", "Auth");
         }
 
         [HttpGet]
         public IActionResult ChangePassword()
         {
-            if (HttpContext.Session.GetString("UsuarioEmail") == null)
+            if (!_userService.IsAuthenticated())
             {
                 return RedirectToAction("Login");
             }
@@ -68,30 +79,22 @@ namespace Project_2025_Web.Controllers
                 return View(model);
             }
 
-            var email = HttpContext.Session.GetString("UsuarioEmail");
+            var email = _userService.GetUserEmail();
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
 
-            using (var context = new DataContext())
+            if (user == null || user.PasswordHash != model.CurrentPassword)
             {
-                var user = context.Users.FirstOrDefault(u => u.Email == email);
-
-                if (user == null || user.Password != model.CurrentPassword)
-                {
-                    ModelState.AddModelError(string.Empty, "La contraseña actual es incorrecta.");
-                    return View(model);
-                }
-
-                user.Password = model.NewPassword;
-                context.SaveChanges();
+                ModelState.AddModelError(string.Empty, "La contraseña actual es incorrecta.");
+                return View(model);
             }
+
+            user.PasswordHash = model.NewPassword;
+            _context.SaveChanges();
 
             TempData["mensaje"] = "Contraseña cambiada exitosamente.";
             TempData["tipo"] = "success";
             return RedirectToAction("Index", "Home");
         }
-
-        // ---------------------------
-        // RECUPERACIÓN DE CONTRASEÑA
-        // ---------------------------
 
         [HttpGet]
         public IActionResult ForgotPassword()
@@ -105,30 +108,25 @@ namespace Project_2025_Web.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            using (var context = new DataContext())
+            var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
+            if (user == null)
             {
-                var user = context.Users.FirstOrDefault(u => u.Email == model.Email);
-                if (user == null)
-                {
-                    TempData["mensaje"] = "Si el correo está registrado, recibirás un enlace.";
-                    TempData["tipo"] = "info";
-                    return RedirectToAction("Login");
-                }
-
-                var token = Guid.NewGuid().ToString();
-                user.PasswordResetToken = token;
-                user.ResetTokenExpires = DateTime.UtcNow.AddHours(1);
-                context.SaveChanges();
-
-                var resetLink = Url.Action("ResetPassword", "Auth", new { token = token }, Request.Scheme);
-
-                // Enviar correo (simulado en archivo)
-                System.IO.File.WriteAllText("wwwroot/reset-link.txt", $"Reset your password: {resetLink}");
-
-                TempData["mensaje"] = "Enlace de recuperación enviado (ver reset-link.txt).";
-                TempData["tipo"] = "success";
+                TempData["mensaje"] = "Si el correo está registrado, recibirás un enlace.";
+                TempData["tipo"] = "info";
                 return RedirectToAction("Login");
             }
+
+            var token = Guid.NewGuid().ToString();
+            user.PasswordResetToken = token;
+            user.ResetTokenExpires = DateTime.UtcNow.AddHours(1);
+            _context.SaveChanges();
+
+            var resetLink = Url.Action("ResetPassword", "Auth", new { token = token }, Request.Scheme);
+            System.IO.File.WriteAllText("wwwroot/reset-link.txt", $"Reset your password: {resetLink}");
+
+            TempData["mensaje"] = "Enlace de recuperación enviado (ver reset-link.txt).";
+            TempData["tipo"] = "success";
+            return RedirectToAction("Login");
         }
 
         [HttpGet]
@@ -150,28 +148,25 @@ namespace Project_2025_Web.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            using (var context = new DataContext())
+            var user = _context.Users.FirstOrDefault(u =>
+                u.PasswordResetToken == model.Token &&
+                u.ResetTokenExpires > DateTime.UtcNow);
+
+            if (user == null)
             {
-                var user = context.Users.FirstOrDefault(u =>
-                    u.PasswordResetToken == model.Token &&
-                    u.ResetTokenExpires > DateTime.UtcNow);
-
-                if (user == null)
-                {
-                    TempData["mensaje"] = "Token inválido o expirado.";
-                    TempData["tipo"] = "error";
-                    return RedirectToAction("Login");
-                }
-
-                user.Password = model.NewPassword;
-                user.PasswordResetToken = null;
-                user.ResetTokenExpires = null;
-                context.SaveChanges();
-
-                TempData["mensaje"] = "Contraseña restablecida correctamente.";
-                TempData["tipo"] = "success";
+                TempData["mensaje"] = "Token inválido o expirado.";
+                TempData["tipo"] = "error";
                 return RedirectToAction("Login");
             }
+
+            user.PasswordHash = model.NewPassword;
+            user.PasswordResetToken = null;
+            user.ResetTokenExpires = null;
+            _context.SaveChanges();
+
+            TempData["mensaje"] = "Contraseña restablecida correctamente.";
+            TempData["tipo"] = "success";
+            return RedirectToAction("Login");
         }
     }
 }

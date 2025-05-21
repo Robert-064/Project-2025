@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Project_2025_Web.Data.Entities
 {
@@ -12,5 +13,12 @@ namespace Project_2025_Web.Data.Entities
 
         // Relación uno a muchos
         public ICollection<User>? Users { get; set; }
+        [StringLength(200, ErrorMessage = "La descripción no puede tener más de 200 caracteres")]
+        public string? Description { get; set; }
+
+        // Propiedad de navegación inversa (opcional)
+        public ICollection<User> User { get; set; } = new List<User>();
     }
 }
+    
+

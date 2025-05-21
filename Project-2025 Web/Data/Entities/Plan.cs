@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Project_2025_Web.Data;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace Project_2025_Web.Data.Entities
 {
@@ -31,6 +32,9 @@ namespace Project_2025_Web.Data.Entities
 
         public string? ImageUrl1 { get; set; }
         public string? ImageUrl2 { get; set; }
+
+        // ✅ Relación uno a muchos: un plan puede tener muchas reservaciones
+        public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
     }
 }
 
