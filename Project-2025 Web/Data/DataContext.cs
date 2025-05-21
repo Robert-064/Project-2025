@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project_2025_Web.Data.Entities;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace Project_2025_Web.Data
 {
@@ -14,20 +12,40 @@ namespace Project_2025_Web.Data
         public DbSet<Plan> Plans { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
 
+        // NUEVOS DbSet para autenticación
+        public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuraciones adicionales si las necesitas
+            // Configuración de tablas
             modelBuilder.Entity<Plan>().ToTable("Plans");
             modelBuilder.Entity<Reservation>().ToTable("Reservations");
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Role>().ToTable("Roles");
 
-            // Relación: Plan - Reservation (uno a muchos)
+            // Relación: Plan - Reservation
             modelBuilder.Entity<Reservation>()
                 .HasOne(r => r.Plan)
-                .WithMany() // si luego quieres tener una lista de Reservations en Plan, aquí puedes poner .WithMany(p => p.Reservations)
+                .WithMany()
                 .HasForeignKey(r => r.Id_Plan)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Relación: Role - User (uno a muchos)
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Role)
+                .WithMany()
+                .HasForeignKey(u => u.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Semilla de roles
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Id = 1, Name = "Admin" },
+                new Role { Id = 2, Name = "User" }
+            );
         }
     }
 }
+
