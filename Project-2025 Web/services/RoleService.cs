@@ -17,7 +17,7 @@ namespace Project_2025_Web.Services
         public async Task<Response<List<RoleDTO>>> GetListAsync()
         {
             var roles = await _context.Roles
-                .Select(r => new RoleDTO { Id = r.Id, Name = r.Name })
+                .Select(r => new RoleDTO { Id = r.Id, Name = r.Name, Description = r.Description })
                 .ToListAsync();
 
             return new Response<List<RoleDTO>>
@@ -42,13 +42,13 @@ namespace Project_2025_Web.Services
             return new Response<RoleDTO>
             {
                 IsSucess = true,
-                Result = new RoleDTO { Id = role.Id, Name = role.Name }
+                Result = new RoleDTO { Id = role.Id, Name = role.Name, Description = role.Description }
             };
         }
 
         public async Task<Response<RoleDTO>> CreateAsync(RoleDTO dto)
         {
-            var entity = new Role { Name = dto.Name };
+            var entity = new Role { Name = dto.Name, Description = dto.Description };
             _context.Roles.Add(entity);
             await _context.SaveChangesAsync();
 
@@ -73,6 +73,7 @@ namespace Project_2025_Web.Services
             }
 
             entity.Name = dto.Name;
+            entity.Description = dto.Description;
             _context.Roles.Update(entity);
             await _context.SaveChangesAsync();
 
@@ -105,3 +106,4 @@ namespace Project_2025_Web.Services
         }
     }
 }
+
