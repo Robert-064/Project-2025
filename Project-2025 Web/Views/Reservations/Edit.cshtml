@@ -2,19 +2,19 @@
 @model Project_2025_Web.DTOs.ReservationDTO
 
 @{
-    ViewData["Title"] = "Editar Reserva";
+    ViewData["Title"] = "Editar Reservation";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var planes = ViewBag.Planes as List<Project_2025_Web.Data.Entities.Plan>;
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4 text-primary">Editar Reserva</h2>
+    <h2 class="mb-4 text-primary">Editar Reservation</h2>
 
     <form asp-action="Edit" method="post">
         <input type="hidden" asp-for="Id" />
 
         <div class="mb-3">
-            <label asp-for="Date" class="form-label">Fecha de reserva</label>
+            <label asp-for="Date" class="form-label">Fecha de Reservation</label>
             <input asp-for="Date" type="date" class="form-control" required />
             <span asp-validation-for="Date" class="text-danger"></span>
         </div>

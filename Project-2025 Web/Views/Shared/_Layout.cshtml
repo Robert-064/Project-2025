@@ -4,14 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - EcoAventuras.web</title>
+
+    <!-- Bootstrap y estilos propios -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PrivateBlog.web.styles.css" asp-append-version="true" />
+
+    <!-- TOASTR CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
 </head>
 <body>
     <nav class="navbar navbar-expand-sm navbar-dark bg-success border-bottom shadow-lg mb-4 py-3">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/Inicio">EcoAventuras </a>
+            <a class="navbar-brand" href="/Home">EcoAventuras</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -20,27 +25,22 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/Inicio">Inicio</a>
+                        <a class="nav-link" href="/Home">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/Paquetes">Paquetes</a>
+                        <a class="nav-link" href="/Packages">Paquetes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/Reservas">Reservas</a>
+                        <a class="nav-link" href="/Reservations">Reservas</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- TOASTR CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
-
-    </header>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
-
         </main>
     </div>
 
@@ -49,18 +49,17 @@
             &copy; 2025 - EcoAventuras.web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
-    <!-- jQuery (Toastr depende de jQuery) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
-    <!-- TOASTR JS -->
+    <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <!-- Script para mostrar mensajes desde TempData -->
+    <!-- Mostrar notificaciones desde TempData -->
     <script>
         $(function () {
             var mensaje = '@TempData["mensaje"]';
@@ -91,37 +90,6 @@
             }
         });
     </script>
-    <!-- jQuery + Toastr.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
-
-    <script>
-        $(function () {
-            var mensaje = '@TempData["mensaje"]';
-            var tipo = '@TempData["tipo"]';
-
-            if (mensaje && tipo) {
-                toastr.options = {
-                    "closeButton": true,
-                    "progressBar": true,
-                    "positionClass": "toast-bottom-right",
-                    "timeOut": "3000"
-                };
-
-                switch (tipo) {
-                    case "success":
-                        toastr.success(mensaje);
-                        break;
-                    case "error":
-                        toastr.error(mensaje);
-                        break;
-                }
-            }
-        });
-    </script>
-
-
-
 </body>
 </html>
+

@@ -1,17 +1,17 @@
 ﻿@model Project_2025_Web.DTOs.ReservationDTO
 
 @{
-    ViewData["Title"] = "Reservas";
+    ViewData["Title"] = "Reservations";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var planes = ViewBag.Planes as List<Project_2025_Web.Data.Entities.Plan>;
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4 text-success">Formulario de Reservas</h2>
+    <h2 class="mb-4 text-success">Formulario de Reservations</h2>
 
     <form asp-action="Create" method="post">
         <div class="mb-3">
-            <label asp-for="Date" class="form-label">Fecha de reserva</label>
+            <label asp-for="Date" class="form-label">Fecha de Reservation</label>
             <input asp-for="Date" type="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
             <span asp-validation-for="Date" class="text-danger"></span>
         </div>
@@ -46,7 +46,7 @@
 
         <input type="hidden" asp-for="Id_User" value="@Model?.Id_User" />
 
-        <button type="submit" class="btn btn-primary">Reservar</button>
+        <button type="submit" class="btn btn-primary">Reservationr</button>
     </form>
 </div>
 
