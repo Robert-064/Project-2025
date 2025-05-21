@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Views\login\" />
     <Folder Include="wwwroot\images\plans\" />
   </ItemGroup>
 
