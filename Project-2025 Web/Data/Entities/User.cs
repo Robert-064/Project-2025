@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data;
 
 namespace Project_2025_Web.Data.Entities
 {
@@ -17,11 +16,13 @@ namespace Project_2025_Web.Data.Entities
         [StringLength(100, ErrorMessage = "El correo no puede tener más de 100 caracteres")]
         public string Email { get; set; } = null!;
 
-        [Required(ErrorMessage = "La contraseña es obligatoria")]
-        [StringLength(200, ErrorMessage = "La contraseña no puede tener más de 200 caracteres")]
-        public string PasswordHash { get; set; } = null!;
+        // Corrección aquí
+        [Required]
+        public byte[] PasswordHash { get; set; } = null!;
 
-        // Relación con el rol
+        [Required]
+        public byte[] PasswordSalt { get; set; } = null!;
+
         [Required]
         public int RoleId { get; set; }
 
@@ -29,3 +30,4 @@ namespace Project_2025_Web.Data.Entities
         public Role Role { get; set; } = null!;
     }
 }
+

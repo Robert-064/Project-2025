@@ -6,20 +6,34 @@ using Project_2025_Web.Data.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAutoMapper(typeof(MappingProfile)); // <- Solo esta línea
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-
-builder.Services.AddControllersWithViews();
-
+// Servicios
 builder.Services.AddScoped<IPlanService, PlanService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
+// DbContext
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Autenticación
+builder.Services.AddAuthentication("Cookies")
+    .AddCookie("Cookies", options =>
+    {
+        options.LoginPath = "/Login";
+        options.AccessDeniedPath = "/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddControllersWithViews();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middleware
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -31,13 +45,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Añadir datos de ejemplo si la base está vacía
+// Añadir datos de ejemplo
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<DataContext>();
