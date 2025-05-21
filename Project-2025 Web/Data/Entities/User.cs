@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data;
 
 namespace Project_2025_Web.Data.Entities
 {
@@ -20,6 +19,12 @@ namespace Project_2025_Web.Data.Entities
         [Required(ErrorMessage = "La contraseña es obligatoria")]
         [StringLength(200, ErrorMessage = "La contraseña no puede tener más de 200 caracteres")]
         public string PasswordHash { get; set; } = null!;
+
+        // Campos para recuperación de contraseña
+        [StringLength(100)]
+        public string? PasswordResetToken { get; set; }
+
+        public DateTime? ResetTokenExpires { get; set; }
 
         // Relación con el rol
         [Required]
