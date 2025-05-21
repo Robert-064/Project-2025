@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+ï»¿using Microsoft.EntityFrameworkCore;
 using Project_2025_Web.Data;
 using Project_2025_Web.Services;
 using AutoMapper;
@@ -6,34 +6,31 @@ using Project_2025_Web.Data.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// AutoMapper
+// Automapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// Servicios
+// Controladores y vistas
+builder.Services.AddControllersWithViews();
+
+// Servicios propios
 builder.Services.AddScoped<IPlanService, PlanService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
-builder.Services.AddScoped<IUserService, UserService>();
 
-// DbContext
+// Base de datos
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Autenticación
-builder.Services.AddAuthentication("Cookies")
-    .AddCookie("Cookies", options =>
-    {
-        options.LoginPath = "/Login";
-        options.AccessDeniedPath = "/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-    });
-
-builder.Services.AddAuthorization();
-
-builder.Services.AddControllersWithViews();
+// ðŸŸ© Habilitar sesiones
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Tiempo de inactividad
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
-// Middleware
+// Manejo de errores y seguridad
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -45,22 +42,25 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthentication();
+// ðŸŸ© Activar sesiones (debe ir antes que Authorization)
+app.UseSession();
+
 app.UseAuthorization();
 
+// Rutas
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Añadir datos de ejemplo
+// Cargar datos de ejemplo si no hay planes
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<DataContext>();
 
     if (!context.Plans.Any())
     {
-        var plan1 = new Plan { Name = "Aventura Andina", Description = "Tour en montaña", Basic_Price = 100, Type_Difficulty = 3, Max_Persons = 10, Distance = 8, ImageUrl1 = "/images/perro (1).jpeg", ImageUrl2 = "/images/perro (2).jpeg" };
-        var plan2 = new Plan { Name = "Relax en la Playa", Description = "Día completo de playa", Basic_Price = 150, Type_Difficulty = 1, Max_Persons = 20, Distance = 2, ImageUrl1 = "/images/velo (1).jpeg", ImageUrl2 = "/images/velo (2).jpeg" };
+        var plan1 = new Plan { Name = "Aventura Andina", Description = "Tour en montaÃ±a", Basic_Price = 100, Type_Difficulty = 3, Max_Persons = 10, Distance = 8, ImageUrl1 = "/images/perro (1).jpeg", ImageUrl2 = "/images/perro (2).jpeg" };
+        var plan2 = new Plan { Name = "Relax en la Playa", Description = "DÃ­a completo de playa", Basic_Price = 150, Type_Difficulty = 1, Max_Persons = 20, Distance = 2, ImageUrl1 = "/images/velo (1).jpeg", ImageUrl2 = "/images/velo (2).jpeg" };
         var plan3 = new Plan { Name = "Selva Explorada", Description = "Caminata guiada en la selva", Basic_Price = 120, Type_Difficulty = 4, Max_Persons = 8, Distance = 10, ImageUrl1 = "/images/bote (1).jpeg", ImageUrl2 = "/images/bote (2).jpeg" };
 
         context.Plans.AddRange(plan1, plan2, plan3);
