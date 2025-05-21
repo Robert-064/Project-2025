@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project_2025_Web.Data;
 
@@ -11,9 +12,11 @@ using Project_2025_Web.Data;
 namespace Project_2025_Web.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250409033139_CambiarTypeDifficultyAInt")]
+    partial class CambiarTypeDifficultyAInt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,74 +98,6 @@ namespace Project_2025_Web.Migrations
                     b.ToTable("Reservations", (string)null);
                 });
 
-            modelBuilder.Entity("Project_2025_Web.Data.Entities.Role", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "User"
-                        });
-                });
-
-            modelBuilder.Entity("Project_2025_Web.Data.Entities.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("RoleId1")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("RoleId1");
-
-                    b.ToTable("Users", (string)null);
-                });
-
             modelBuilder.Entity("Project_2025_Web.Data.Entities.Reservation", b =>
                 {
                     b.HasOne("Project_2025_Web.Data.Entities.Plan", "Plan")
@@ -172,26 +107,6 @@ namespace Project_2025_Web.Migrations
                         .IsRequired();
 
                     b.Navigation("Plan");
-                });
-
-            modelBuilder.Entity("Project_2025_Web.Data.Entities.User", b =>
-                {
-                    b.HasOne("Project_2025_Web.Data.Entities.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Project_2025_Web.Data.Entities.Role", null)
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId1");
-
-                    b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("Project_2025_Web.Data.Entities.Role", b =>
-                {
-                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }
