@@ -16,17 +16,13 @@ namespace Project_2025_Web.Data.Entities
         [StringLength(100, ErrorMessage = "El correo no puede tener más de 100 caracteres")]
         public string Email { get; set; } = null!;
 
-        [Required(ErrorMessage = "La contraseña es obligatoria")]
-        [StringLength(200, ErrorMessage = "La contraseña no puede tener más de 200 caracteres")]
-        public string PasswordHash { get; set; } = null!;
+        // Corrección aquí
+        [Required]
+        public byte[] PasswordHash { get; set; } = null!;
 
-        // Campos para recuperación de contraseña
-        [StringLength(100)]
-        public string? PasswordResetToken { get; set; }
+        [Required]
+        public byte[] PasswordSalt { get; set; } = null!;
 
-        public DateTime? ResetTokenExpires { get; set; }
-
-        // Relación con el rol
         [Required]
         public int RoleId { get; set; }
 
@@ -34,3 +30,4 @@ namespace Project_2025_Web.Data.Entities
         public Role Role { get; set; } = null!;
     }
 }
+

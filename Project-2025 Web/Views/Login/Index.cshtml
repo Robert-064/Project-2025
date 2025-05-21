@@ -1,0 +1,45 @@
+﻿@model Project_2025_Web.Controllers.LoginController.LoginDTO
+
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title mb-4 text-center">Iniciar Sesión</h3>
+
+                <form asp-action="Index" method="post" novalidate>
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label"></label>
+                        <input asp-for="Username" class="form-control" />
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" type="password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">Ingresar</button>
+                </form>
+
+                <hr />
+
+                <div class="text-center">
+                    <p>¿No tienes cuenta?</p>
+                    <a asp-controller="Register" asp-action="Index" class="btn btn-outline-success">
+                        Crear una nueva cuenta
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
