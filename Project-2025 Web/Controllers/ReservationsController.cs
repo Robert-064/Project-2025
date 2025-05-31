@@ -85,7 +85,7 @@ namespace Project_2025_Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? planId = null)
         {
             Response<List<Plan>> planesResponse = await _planService.GetListAsync();
 
@@ -94,13 +94,19 @@ namespace Project_2025_Web.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.Planes = planesResponse.Result; //Para ver las opciones de planes
+            ViewBag.Planes = planesResponse.Result;
 
+            var dto = new ReservationDTO();
 
-            return View(new ReservationDTO());
+            if (planId.HasValue)
+            {
+                dto.Id_Plan = planId.Value; // Preseleccionar el plan si viene del botón
+            }
+
+            return View(dto);
         }
 
-        
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -18,15 +18,12 @@
 
         <div class="mb-3">
             <label asp-for="Id_Plan" class="form-label">Seleccione el plan</label>
-            <select asp-for="Id_Plan" class="form-select">
-                <option disabled selected>-- Seleccione un plan --</option>
-                @foreach (var plan in planes)
-                {
-                        <option value="@plan.Id">@plan.Name</option>
-                }
+            <select asp-for="Id_Plan" class="form-select" asp-items="@(new SelectList(ViewBag.Planes, "Id", "Name", Model.Id_Plan))">
+                <option value="">-- Seleccione un plan --</option>
             </select>
             <span asp-validation-for="Id_Plan" class="text-danger"></span>
         </div>
+
 
         <div class="mb-3">
             <label asp-for="Person_Number" class="form-label">Número de personas</label>

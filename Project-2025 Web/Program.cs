@@ -3,19 +3,9 @@ using Project_2025_Web.Data;
 using Project_2025_Web.Services;
 using AutoMapper;
 using Project_2025_Web.Data.Entities;
+using static Project_2025_Web.Services.AuthorizePermissionAttribute;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Configuración del DbContext
-builder.Services.AddDbContext<DataContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    if (builder.Environment.IsDevelopment())
-    {
-        options.EnableSensitiveDataLogging();
-        options.EnableDetailedErrors();
-    }
-});
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -24,8 +14,12 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<IPlanService, PlanService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 
+
+// DbContext
+builder.Services.AddDbContext<DataContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Autenticación
 builder.Services.AddAuthentication("Cookies")
@@ -38,17 +32,7 @@ builder.Services.AddAuthentication("Cookies")
 
 builder.Services.AddAuthorization();
 
-// ?? Agrega soporte para sesiones
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
 builder.Services.AddControllersWithViews();
-builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -65,17 +49,13 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
-
-// ?? Usa sesión antes de Authorization
-app.UseSession();
-
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Datos de ejemplo
+// Añadir datos de ejemplo
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<DataContext>();

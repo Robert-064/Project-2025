@@ -13,11 +13,6 @@
     <!-- TOASTR CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
 </head>
-<environment include="Development">
-    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-</environment>
-
 <body>
     <nav class="navbar navbar-expand-sm navbar-dark bg-success border-bottom shadow-lg mb-4 py-3">
         <div class="container-fluid">
@@ -35,32 +30,34 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/Packages">Paquetes</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Reservations">Reservas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Role">Roles</a>
-                    </li>
-
-                    @if (Context.Session.GetString("UsuarioEmail") == null)
+                    
+                    @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                     {
-                        <!-- Mostrar botón Login si no hay sesión -->
                         <li class="nav-item">
-                            <a class="nav-link text-light" asp-controller="Auth" asp-action="Login">Login</a>
+                            <a class="nav-link" href="/Roles">Roles</a>
+                        </li>
+                    }
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Reservations">Reservas</a>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" asp-controller="Login" asp-action="Logout" class="d-inline">
+                                <button type="submit" class="btn btn-link nav-link"
+                                        style="display:inline; padding:0; border:none; cursor:pointer;">
+                                    Cerrar sesión (@User.Identity.Name)
+                                </button>
+                            </form>
                         </li>
                     }
                     else
                     {
-                        <!-- Mostrar botón Cerrar Sesión si el usuario está autenticado -->
                         <li class="nav-item">
-                            <form asp-controller="Auth" asp-action="Logout" method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-light">Cerrar Sesión</button>
-                            </form>
+                            <a class="nav-link btn btn-outline-light ms-2" href="/Login">Iniciar Sesión</a>
                         </li>
                     }
                 </ul>
-
             </div>
         </div>
     </nav>
@@ -119,4 +116,5 @@
     </script>
 </body>
 </html>
+
 

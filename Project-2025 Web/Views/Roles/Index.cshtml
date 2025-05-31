@@ -1,8 +1,7 @@
-﻿@model IEnumerable<Project_2025_Web.DTO.RoleDTO>
+﻿@model List<Project_2025_Web.Data.Entities.Role>
 
 @{
     ViewData["Title"] = "Roles";
-    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 @if (TempData["mensaje"] != null)
@@ -15,14 +14,14 @@
 }
 
 <h1 class="mb-3">Roles</h1>
+
 <a class="btn btn-primary mb-3" asp-action="Create">Nuevo Rol</a>
 
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th>Id</th>
             <th>Nombre</th>
-            <th>Descripción</th>
+            <th>Permisos</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -30,12 +29,20 @@
         @foreach (var role in Model)
         {
             <tr>
-                <td>@role.Id</td>
                 <td>@role.Name</td>
-                <td>@role.Description</td>
+                <td>
+                    @if (role.RolePermissions != null && role.RolePermissions.Any())
+                    {
+                        @string.Join(", ", role.RolePermissions.Select(rp => rp.Permission.Name))
+                    }
+                    else
+                    {
+                        <em>Sin permisos asignados</em>
+                    }
+                </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-warning btn-sm">Editar</a>
-                    <form asp-action="Delete" asp-route-id="@role.Id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este rol?');">
+                    <form asp-action="Delete" asp-route-id="@role.Id" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de eliminar este rol?');">
                         <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                     </form>
                 </td>

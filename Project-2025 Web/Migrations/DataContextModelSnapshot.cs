@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Project_2025_Web.Data;
 
 #nullable disable
 
@@ -21,6 +20,70 @@ namespace Project_2025_Web.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Project_2025_Web.Data.Entities.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Gestionar Paquetes"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Gestionar Usuarios"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Gestionar Roles"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Ver Reservas"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Gestionar Reservas"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Crear comentarios en el blog"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Gestionar Blog"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Hacer Reservas"
+                        });
+                });
 
             modelBuilder.Entity("Project_2025_Web.Data.Entities.Plan", b =>
                 {
@@ -121,7 +184,79 @@ namespace Project_2025_Web.Migrations
                         new
                         {
                             Id = 2,
-                            Name = "User"
+                            Name = "Usuario"
+                        });
+                });
+
+            modelBuilder.Entity("Project_2025_Web.Data.Entities.RolePermission", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 1
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 2
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 3
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 4
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 5
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 6
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 7
+                        },
+                        new
+                        {
+                            RoleId = 1,
+                            PermissionId = 8
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 4
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 6
+                        },
+                        new
+                        {
+                            RoleId = 2,
+                            PermissionId = 8
                         });
                 });
 
@@ -138,15 +273,15 @@ namespace Project_2025_Web.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<byte[]>("PasswordHash")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("RoleId1")
                         .HasColumnType("int");
 
                     b.Property<string>("Username")
@@ -157,8 +292,6 @@ namespace Project_2025_Web.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("RoleId1");
 
                     b.ToTable("Users", (string)null);
                 });
@@ -174,6 +307,25 @@ namespace Project_2025_Web.Migrations
                     b.Navigation("Plan");
                 });
 
+            modelBuilder.Entity("Project_2025_Web.Data.Entities.RolePermission", b =>
+                {
+                    b.HasOne("Project_2025_Web.Data.Entities.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Project_2025_Web.Data.Entities.Role", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Project_2025_Web.Data.Entities.User", b =>
                 {
                     b.HasOne("Project_2025_Web.Data.Entities.Role", "Role")
@@ -182,16 +334,17 @@ namespace Project_2025_Web.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Project_2025_Web.Data.Entities.Role", null)
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId1");
-
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Project_2025_Web.Data.Entities.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("Project_2025_Web.Data.Entities.Role", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("RolePermissions");
                 });
 #pragma warning restore 612, 618
         }

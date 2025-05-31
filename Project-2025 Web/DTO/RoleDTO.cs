@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Project_2025_Web.Data.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace Project_2025_Web.DTO
 {
@@ -6,11 +7,15 @@ namespace Project_2025_Web.DTO
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "El nombre es obligatorio")]
-        [StringLength(100, ErrorMessage = "El nombre no puede tener más de 100 caracteres")]
+        [Required(ErrorMessage = "El nombre del rol es obligatorio")]
+        [StringLength(50)]
         public string Name { get; set; }
-        [Required(ErrorMessage = "La descripcion es obligatorio")]
-        [StringLength(200, ErrorMessage = "la descripcion no puede tener más de 200 caracteres")]
-        public string Description { get; set; }
+
+        // Permisos seleccionados por el usuario (desde los checkboxes)
+        public List<int> SelectedPermissionIds { get; set; } = new();
+
+        // Todos los permisos disponibles (para mostrar en la vista)
+        public List<Permission>? AvailablePermissions { get; set; }
     }
+
 }

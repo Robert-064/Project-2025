@@ -10,7 +10,7 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <img src="@Url.Content(plan.ImageUrl1)" alt="Imagen 1 de @plan.Name" class="img-fluid rounded shadow" />                   
+                        <img src="@Url.Content(plan.ImageUrl1)" alt="Imagen 1 de @plan.Name" class="img-fluid rounded shadow" />
                     </div>
                     <div class="col-md-6">
                         <img src="@Url.Content(plan.ImageUrl2)" alt="Imagen 2 de @plan.Name" class="img-fluid rounded shadow" />
@@ -23,15 +23,29 @@
                 <p><strong>Máximo de Personas:</strong> @plan.Max_Persons</p>
 
                 <div class="text-end d-flex justify-content-end gap-2">
-                    <form asp-action="Delete" asp-controller="Packages" method="post" asp-route-id="@plan.Id" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este plan?');">
-                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                    </form>
+                    @if (ViewBag.CanCreateReservation)
+                    {
+                        <a href="@Url.Action("Create", "Reservations", new { planId = plan.Id })" class="btn btn-primary">
+                            Hacer Reserva
+                        </a>
+                    }
 
-                    <a href="@Url.Action("Edit", "Packages", new { id = plan.Id })" class="btn btn-warning">Editar</a>
+                    @if (ViewBag.CanEdit)
+                    {
+                        <a href="@Url.Action("Edit", "Packages", new { id = plan.Id })" class="btn btn-warning">Editar</a>
+                    }
+
+                    @if (ViewBag.CanDelete)
+                    {
+                        <form asp-action="Delete" asp-controller="Packages" method="post" asp-route-id="@plan.Id" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este plan?');">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    }
                 </div>
             </div>
         </div>
     }
+
 
     <!-- Aquí el paginador -->
     <nav aria-label="Page navigation example">
@@ -57,7 +71,10 @@
     </nav>
 
     <div class="text-center mt-4">
-        <a href="@Url.Action("Create", "Packages")" class="btn btn-primary">Añadir Plan</a>
+        @if (ViewBag.CanCreate)
+        {
+            <a href="@Url.Action("Create", "Packages")" class="btn btn-primary">Añadir Plan</a>
+        }
     </div>
 </div>
 
