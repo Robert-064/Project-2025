@@ -3,8 +3,11 @@ using Project_2025_Web.Data;
 using Project_2025_Web.Services;
 using AutoMapper;
 using Project_2025_Web.Data.Entities;
-using static Project_2025_Web.Services.AuthorizePermissionAttribute;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Net.Http.Headers;
 var builder = WebApplication.CreateBuilder(args);
 
 // AutoMapper
@@ -21,18 +24,46 @@ builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Autenticaci�n
-builder.Services.AddAuthentication("Cookies")
+// Autenticación
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "JwtOrCookie";
+    options.DefaultChallengeScheme = "JwtOrCookie";
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("TuClaveSecretaSuperseguraDeAlMenos256Bits")),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ClockSkew = TimeSpan.Zero
+    };
+})
     .AddCookie("Cookies", options =>
     {
         options.LoginPath = "/Login";
         options.AccessDeniedPath = "/AccessDenied";
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+})
+.AddPolicyScheme("JwtOrCookie", "JWT or Cookie", options =>
+{
+    options.ForwardDefaultSelector = context =>
+    {
+        string authorization = context.Request.Headers[HeaderNames.Authorization];
+        if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("Bearer "))
+            return JwtBearerDefaults.AuthenticationScheme;
+        return "Cookies";
+    };
+});
+
+
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
-
-builder.Services.AddAuthorization();
-
-builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -58,7 +89,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-    endpoints.MapGet("/Api/minimal", () =>
+    endpoints.MapGet("Api/minimal", () =>
     {
         return "Minimal Endpoint";
         });
