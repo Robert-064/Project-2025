@@ -47,7 +47,7 @@ public class UserService : IUserService
             Email = dto.Email,
             PasswordHash = passwordHash,
             PasswordSalt = passwordSalt,
-            RoleId = dto.RoleId
+            RoleId = 2
         };
 
         _context.Users.Add(user);

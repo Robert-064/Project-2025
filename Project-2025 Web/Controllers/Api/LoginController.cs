@@ -60,7 +60,7 @@ namespace Project_2025_Web.Controllers.Api
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Ok(new { message = "Sesión cerrada exitosamente" });
+            return RedirectToAction("Index", "Login"); 
         }
     }
 }

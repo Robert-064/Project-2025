@@ -24,7 +24,6 @@ namespace Project_2025_Web.Controllers
             return View();
         }
 
-        // DTO para login (puedes definirlo en otro archivo)
         public class LoginDTO
         {
             public string Username { get; set; } = string.Empty;
@@ -51,14 +50,14 @@ namespace Project_2025_Web.Controllers
             {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Role, user.Role.Name) // Asumiendo que Role tiene un campo Name
+                new Claim(ClaimTypes.Role, user.Role.Name) 
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
             var authProperties = new AuthenticationProperties
             {
-                // Puedes agregar configuraciones aquí, como expiración, persistencia, etc.
+            
                 IsPersistent = true
             };
 
@@ -67,7 +66,6 @@ namespace Project_2025_Web.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            // Redirigir a la página principal o dashboard
             return RedirectToAction("Index", "Home");
         }
 
@@ -75,7 +73,7 @@ namespace Project_2025_Web.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Index", "Login");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

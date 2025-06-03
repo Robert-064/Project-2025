@@ -1,0 +1,47 @@
+﻿@model Project_2025_Web.Data.Entities.User
+
+@{
+    ViewData["Title"] = "Editar Usuario";
+}
+
+<h1>Editar Usuario</h1>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="Username" class="form-label"></label>
+        <input asp-for="Username" class="form-control" />
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="RoleId" class="form-label">Rol</label>
+        <select asp-for="RoleId" class="form-select" asp-items="@(ViewData["RoleId"] as SelectList)"></select>
+        <span asp-validation-for="RoleId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+
+
+
+
+

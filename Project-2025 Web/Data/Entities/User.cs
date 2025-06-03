@@ -16,7 +16,6 @@ namespace Project_2025_Web.Data.Entities
         [StringLength(100, ErrorMessage = "El correo no puede tener más de 100 caracteres")]
         public string Email { get; set; } = null!;
 
-        // Corrección aquí
         [Required]
         public byte[] PasswordHash { get; set; } = null!;
 
