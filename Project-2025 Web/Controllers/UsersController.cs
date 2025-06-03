@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project_2025_Web.Data;
 using Project_2025_Web.Data.Entities;
-using Project_2025_Web.DTOs;
+using System.Security.Claims;
 
 namespace Project_2025_Web.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class UsersController : Controller
     {
         private readonly DataContext _context;
@@ -18,20 +18,20 @@ namespace Project_2025_Web.Controllers
             _context = context;
         }
 
-        // GET: Users
+        // --- ACCIONES ADMIN ---
+
+        // GET: Users (Listado con filtros y paginación) SOLO ADMIN
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index(string? name, string? email, string? role, int page = 1)
         {
             int pageSize = 10;
 
-            // Obtener roles para el filtro
             var rolesList = await _context.Roles
                 .Select(r => new SelectListItem { Value = r.Id.ToString(), Text = r.Name })
                 .ToListAsync();
             ViewBag.Roles = rolesList;
 
-
             var query = _context.Users.Include(u => u.Role).AsQueryable();
-
 
             if (!string.IsNullOrEmpty(name))
             {
@@ -51,26 +51,17 @@ namespace Project_2025_Web.Controllers
                 }
             }
 
-
             int totalUsers = await query.CountAsync();
-
-
             int totalPages = (int)Math.Ceiling(totalUsers / (double)pageSize);
-
-            // Validar que page esté en rango
             if (page < 1) page = 1;
             if (page > totalPages && totalPages > 0) page = totalPages;
 
-            // Obtener usuarios de la página actual con paginación
             var users = await query
                 .OrderBy(u => u.Username)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-     
-
-            // Pasar filtros y paginación a la vista para mantener estado en la UI
             ViewBag.FiltroNombre = name;
             ViewBag.FiltroCorreo = email;
             ViewBag.FiltroRol = role;
@@ -80,20 +71,23 @@ namespace Project_2025_Web.Controllers
             return View(users);
         }
 
+        // GET: Users/Create SOLO ADMIN
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name");
             return View();
         }
 
-        // POST: Users/Create
+        // POST: Users/Create SOLO ADMIN
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(User user)
         {
             if (ModelState.IsValid)
             {
-                user.PasswordHash = new byte[0];
+                user.PasswordHash = new byte[0]; // O mejor: pedir password y hashearlo
                 user.PasswordSalt = new byte[0];
 
                 _context.Add(user);
@@ -104,7 +98,8 @@ namespace Project_2025_Web.Controllers
             return View(user);
         }
 
-        // GET: Users/Edit/5
+        // GET: Users/Edit/5 SOLO ADMIN
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -116,12 +111,12 @@ namespace Project_2025_Web.Controllers
             return View(user);
         }
 
-
+        // POST: Users/Edit/5 SOLO ADMIN
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, User user)
         {
-            // Elimina validación de campos que no se editan en la vista
             ModelState.Remove(nameof(user.PasswordHash));
             ModelState.Remove(nameof(user.PasswordSalt));
             ModelState.Remove(nameof(user.Role));
@@ -137,7 +132,6 @@ namespace Project_2025_Web.Controllers
                     if (existingUser == null)
                         return NotFound();
 
-                    // Conservar password actual
                     user.PasswordHash = existingUser.PasswordHash;
                     user.PasswordSalt = existingUser.PasswordSalt;
 
@@ -155,15 +149,14 @@ namespace Project_2025_Web.Controllers
                     throw;
                 }
             }
-
             ViewData["RoleId"] = new SelectList(_context.Roles, "Id", "Name", user.RoleId);
             return View(user);
         }
 
-
-        // POST: Users/Delete/5
+        // POST: Users/Delete/5 SOLO ADMIN
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -172,10 +165,72 @@ namespace Project_2025_Web.Controllers
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
             }
-
             return RedirectToAction(nameof(Index));
+        }
+
+
+        // --- ACCIONES PERFIL USUARIO ---
+
+        // GET: Users/EditProfile (Editar perfil propio, sin rol)
+        public async Task<IActionResult> EditProfile()
+        {
+            // Obtener id usuario logueado
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+                return Forbid();
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                return NotFound();
+
+            // No se cambia rol ni password aquí (a menos que implementes)
+            return View(user);
+        }
+
+        // POST: Users/EditProfile
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(User user)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+                return Forbid();
+
+            if (user.Id != userId)
+                return Forbid();
+
+            // No permitimos cambiar password, salt ni rol en esta vista
+            ModelState.Remove(nameof(user.PasswordHash));
+            ModelState.Remove(nameof(user.PasswordSalt));
+            ModelState.Remove(nameof(user.Role));
+            ModelState.Remove(nameof(user.RoleId));
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+                    if (existingUser == null)
+                        return NotFound();
+
+                    // Mantener password y rol actuales
+                    user.PasswordHash = existingUser.PasswordHash;
+                    user.PasswordSalt = existingUser.PasswordSalt;
+                    user.RoleId = existingUser.RoleId;
+
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+
+                    TempData["mensaje"] = "¡Perfil actualizado con éxito!";
+                    TempData["tipo"] = "success";
+                    return RedirectToAction("EditProfile");
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    return StatusCode(500);
+                }
+            }
+            return View(user);
         }
     }
 }
-
-

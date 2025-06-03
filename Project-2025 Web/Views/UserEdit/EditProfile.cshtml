@@ -1,0 +1,98 @@
+﻿@model Project_2025_Web.DTO.UserEditProfileDTO
+@{
+    ViewData["Title"] = "Editar Perfil";
+}
+
+<h2 class="text-success">Editar Perfil</h2>
+
+@if (TempData["mensaje"] != null)
+{
+    <div class="alert alert-@TempData["tipo"]">@TempData["mensaje"]</div>
+}
+
+<form asp-action="EditProfile" method="post" id="editProfileForm">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Username" class="form-label"></label>
+        <input asp-for="Username" class="form-control" disabled />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="RoleName" class="form-label"></label>
+        <input asp-for="RoleName" class="form-control" disabled />
+    </div>
+
+    <hr />
+    <h5>Cambiar contraseña</h5>
+
+    <div class="mb-3">
+        <label asp-for="NewPassword" class="form-label"></label>
+        <input asp-for="NewPassword" class="form-control" type="password" />
+        <span asp-validation-for="NewPassword" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ConfirmNewPassword" class="form-label"></label>
+        <input asp-for="ConfirmNewPassword" class="form-control" type="password" />
+        <span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
+    </div>
+
+    <!-- Campo oculto para CurrentPassword -->
+    <input type="hidden" name="CurrentPassword" id="CurrentPasswordHidden" />
+
+    <button type="button" class="btn btn-success" id="openVerifyModal">Guardar Cambios</button>
+</form>
+
+<!-- Modal de verificación -->
+<div class="modal fade" id="verifyPasswordModal" tabindex="-1" aria-labelledby="verifyPasswordLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="verifyPasswordLabel">Verificar Contraseña</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <label for="verifyPasswordInput" class="form-label">Contraseña actual</label>
+                <input type="password" class="form-control" id="verifyPasswordInput" />
+                <div class="invalid-feedback" id="verifyPasswordError">Contraseña incorrecta.</div>
+            </div>
+            <div class="modal-footer">
+                <!-- Aquí el botón Confirmar solo hace logout -->
+                <button id="verifyPasswordSubmit" class="btn btn-success">Confirmar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario oculto para logout -->
+<form id="logoutForm" asp-controller="UserEdit" asp-action="Logout" method="post" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const modal = new bootstrap.Modal(document.getElementById('verifyPasswordModal'));
+
+        document.getElementById('openVerifyModal').addEventListener('click', () => {
+            
+            modal.show();
+        });
+
+
+        document.getElementById('verifyPasswordSubmit').addEventListener('click', (e) => {
+            e.preventDefault();
+            modal.hide();
+            document.getElementById('logoutForm').submit();
+        });
+    </script>
+}
+

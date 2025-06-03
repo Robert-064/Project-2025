@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Net.Http.Headers;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // AutoMapper
@@ -19,7 +20,6 @@ builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 
-
 // DbContext
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -29,6 +29,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = "JwtOrCookie";
     options.DefaultChallengeScheme = "JwtOrCookie";
+    options.DefaultSignOutScheme = "Cookies";  // <--- ESTO es lo nuevo para que SignOutAsync funcione bien
 })
 .AddJwtBearer(options =>
 {
@@ -41,11 +42,11 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 })
-    .AddCookie("Cookies", options =>
-    {
-        options.LoginPath = "/Login";
-        options.AccessDeniedPath = "/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+.AddCookie("Cookies", options =>
+{
+    options.LoginPath = "/Login";
+    options.AccessDeniedPath = "/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 })
 .AddPolicyScheme("JwtOrCookie", "JWT or Cookie", options =>
 {
@@ -57,7 +58,6 @@ builder.Services.AddAuthentication(options =>
         return "Cookies";
     };
 });
-
 
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
@@ -82,27 +82,27 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
     endpoints.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
     endpoints.MapGet("Api/minimal", () =>
     {
         return "Minimal Endpoint";
-        });
+    });
 });
-// A�adir datos de ejemplo
+
+// Añadir datos de ejemplo
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<DataContext>();
 
     if (!context.Plans.Any())
     {
-        var plan1 = new Plan { Name = "Aventura Andina", Description = "Tour en monta�a", Basic_Price = 100, Type_Difficulty = 3, Max_Persons = 10, Distance = 8, ImageUrl1 = "/images/perro (1).jpeg", ImageUrl2 = "/images/perro (2).jpeg" };
-        var plan2 = new Plan { Name = "Relax en la Playa", Description = "D�a completo de playa", Basic_Price = 150, Type_Difficulty = 1, Max_Persons = 20, Distance = 2, ImageUrl1 = "/images/velo (1).jpeg", ImageUrl2 = "/images/velo (2).jpeg" };
+        var plan1 = new Plan { Name = "Aventura Andina", Description = "Tour en montaña", Basic_Price = 100, Type_Difficulty = 3, Max_Persons = 10, Distance = 8, ImageUrl1 = "/images/perro (1).jpeg", ImageUrl2 = "/images/perro (2).jpeg" };
+        var plan2 = new Plan { Name = "Relax en la Playa", Description = "Día completo de playa", Basic_Price = 150, Type_Difficulty = 1, Max_Persons = 20, Distance = 2, ImageUrl1 = "/images/velo (1).jpeg", ImageUrl2 = "/images/velo (2).jpeg" };
         var plan3 = new Plan { Name = "Selva Explorada", Description = "Caminata guiada en la selva", Basic_Price = 120, Type_Difficulty = 4, Max_Persons = 8, Distance = 10, ImageUrl1 = "/images/bote (1).jpeg", ImageUrl2 = "/images/bote (2).jpeg" };
 
         context.Plans.AddRange(plan1, plan2, plan3);
