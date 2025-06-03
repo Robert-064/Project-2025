@@ -11,10 +11,8 @@ namespace Project_2025_Web.DTO
         [StringLength(50)]
         public string Name { get; set; }
 
-        // Permisos seleccionados por el usuario (desde los checkboxes)
         public List<int> SelectedPermissionIds { get; set; } = new();
 
-        // Todos los permisos disponibles (para mostrar en la vista)
         public List<Permission>? AvailablePermissions { get; set; }
     }
 
