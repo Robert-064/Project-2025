@@ -4,15 +4,19 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Project_2025_Web.Data;
 using Project_2025_Web.Data.Entities;
+using Project_2025_Web.DTO;
 using Project_2025_Web.DTOs;
 using Project_2025_Web.Services;
-
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 public interface IUserService
 {
     Task<bool> RegisterAsync(User user, string password);
     Task<User?> AuthenticateAsync(string username, string password);
     Task<User?> GetByUsernameAsync(string username);
     Task<Response<string>> RegisterUserAsync(UserRegisterDTO dto);
+    Task<Response<UserTokenDTO>> RegisterApiUserAsync(UserRegisterDTO dto);
 }
 
 public class UserService : IUserService
@@ -101,6 +105,73 @@ public class UserService : IUserService
         for (int i = 0; i < computedHash.Length; i++)
             if (computedHash[i] != storedHash[i]) return false;
         return true;
+    }
+
+    public async Task<Response<UserTokenDTO>> RegisterApiUserAsync(UserRegisterDTO dto)
+    {
+        try
+        {
+            // Verificar si el usuario ya existe
+            if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
+            {
+                return new Response<UserTokenDTO>
+                {
+                    IsSucess = false,
+                    Message = "El nombre de usuario ya está en uso.",
+                    Errors = new List<string> { "Nombre de usuario duplicado." }
+                };
+            }
+            // Crear hash de la contraseña
+            CreatePasswordHash(dto.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            // Crear nuevo usuario
+            var user = new User
+            {
+                Username = dto.Username,
+                Email = dto.Email,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
+                RoleId = dto.RoleId
+            };
+            // Guardar usuario en la base de datos
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            // Generar token JWT
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("TuClaveSecretaSuperseguraDeAlMenos256Bits"); // Debe coincidir con la configuración
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, (await _context.Roles.FindAsync(user.RoleId))?.Name ?? "")
+            }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return new Response<UserTokenDTO>
+            {
+                IsSucess = true,
+                Message = "Usuario registrado correctamente",
+                Result = new UserTokenDTO
+                {
+                    Token = tokenHandler.WriteToken(token),
+                    Expiration = tokenDescriptor.Expires ?? DateTime.UtcNow.AddDays(7)
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            return new Response<UserTokenDTO>
+            {
+                IsSucess = false,
+                Message = "Error al registrar el usuario",
+                Errors = new List<string> { ex.Message }
+            };
+        }
     }
 }
 
