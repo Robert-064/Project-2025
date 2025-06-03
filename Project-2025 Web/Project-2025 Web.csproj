@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\NewFolder\" />
     <Folder Include="wwwroot\images\plans\" />
   </ItemGroup>
 

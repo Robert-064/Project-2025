@@ -2,122 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - EcoAventuras.web</title>
 
+    <!-- Bootstrap y estilos propios -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PrivateBlog.web.styles.css" asp-append-version="true" />
+
+    <!-- TOASTR CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
-
-    <style>
-        /* Sidebar */
-        #sidebarMenu {
-            width: 250px;
-            position: fixed;
-            top: 56px; /* navbar height */
-            left: -250px;
-            height: 100%;
-            background-color: #198754; /* bootstrap success */
-            color: white;
-            transition: left 0.3s ease;
-            z-index: 1050;
-            padding-top: 1rem;
-        }
-
-            #sidebarMenu.show {
-                left: 0;
-            }
-
-            #sidebarMenu a {
-                color: white;
-                text-decoration: none;
-                display: block;
-                padding: 0.75rem 1.25rem;
-                font-weight: 500;
-            }
-
-                #sidebarMenu a:hover,
-                #sidebarMenu a:focus {
-                    background-color: #145c32; /* darker green */
-                    color: white;
-                    text-decoration: none;
-                }
-
-            #sidebarMenu .submenu a {
-                padding-left: 2.5rem;
-                font-weight: 400;
-            }
-
-        /* Overlay */
-        #sidebarOverlay {
-            position: fixed;
-            top: 56px; /* below navbar */
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.3);
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease;
-            z-index: 1040;
-        }
-
-            #sidebarOverlay.show {
-                opacity: 1;
-                visibility: visible;
-            }
-
-        /* Navbar user button */
-        #userMenuButton {
-            background: none;
-            border: none;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-            #userMenuButton:focus {
-                outline: none;
-                box-shadow: 0 0 0 0.2rem rgba(25,135,84,.5);
-            }
-    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-sm navbar-dark bg-success border-bottom shadow-lg py-3">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-success border-bottom shadow-lg mb-4 py-3">
         <div class="container-fluid">
-            <!-- Logo sin función de botón -->
-            <a href="#" class="navbar-brand">EcoAventuras</a>
-
+            <a class="navbar-brand" href="/Home">EcoAventuras</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-
-                <ul class="navbar-nav me-auto">
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/Home">Inicio</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/Packages">Paquetes</a>
                     </li>
+                    
+                    @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Roles">Roles</a>
+                        </li>
+                    }
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item">
                             <a class="nav-link" href="/Reservations">Reservas</a>
                         </li>
-                    }
-                </ul>
-
-                <ul class="navbar-nav ms-auto align-items-center">
-                    @if (User.Identity != null && User.Identity.IsAuthenticated)
-                    {
                         <li class="nav-item">
-                            <button id="userMenuButton" class="nav-link btn btn-success" type="button" aria-label="Abrir menú usuario">
-                                <i class="bi bi-person-circle"></i> @User.Identity.Name
-                            </button>
+                            <form method="post" asp-controller="Login" asp-action="Logout" class="d-inline">
+                                <button type="submit" class="btn btn-link nav-link"
+                                        style="display:inline; padding:0; border:none; cursor:pointer;">
+                                    Cerrar sesión (@User.Identity.Name)
+                                </button>
+                            </form>
                         </li>
                     }
                     else
@@ -131,50 +62,28 @@
         </div>
     </nav>
 
-    <!-- Menú lateral oculto -->
-    <nav id="sidebarMenu" aria-label="Menú lateral de usuario">
-        <a asp-controller="UserEdit" asp-action="EditProfile">Editar Perfil</a>
-        <form method="post" asp-controller="Login" asp-action="Logout" class="mb-0">
-            <button type="submit" class="btn btn-link text-white w-100 text-start px-3 py-2" style="border:none;">
-                Cerrar Sesión
-            </button>
-        </form>
-
-        @if (User.IsInRole("Admin"))
-        {
-            <hr style="border-color: rgba(255,255,255,0.2);" />
-            <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="d-block px-3 py-2" style="cursor:pointer; font-weight:600;">
-                Administración <i class="bi bi-caret-down-fill"></i>
-            </a>
-            <div class="collapse submenu" id="adminSubmenu">
-                <a href="/Users">Usuarios</a>
-                <a href="/Roles">Roles</a>
-            </div>
-        }
-    </nav>
-
-    <!-- Overlay para cerrar menú -->
-    <div id="sidebarOverlay"></div>
-
-    <div class="container mt-4">
+    <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted mt-4">
+    <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - EcoAventuras.web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
 
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
+    <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
+    <!-- Mostrar notificaciones desde TempData -->
     <script>
         $(function () {
             var mensaje = '@TempData["mensaje"]';
@@ -182,10 +91,10 @@
 
             if (mensaje && tipo) {
                 toastr.options = {
-                    closeButton: true,
-                    progressBar: true,
-                    positionClass: "toast-bottom-right",
-                    timeOut: "3000"
+                    "closeButton": true,
+                    "progressBar": true,
+                    "positionClass": "toast-bottom-right",
+                    "timeOut": "3000"
                 };
 
                 switch (tipo) {
@@ -203,26 +112,9 @@
                         break;
                 }
             }
-
-            // Funcionalidad menú lateral: solo con botón usuario
-            const userMenuBtn = document.getElementById('userMenuButton');
-            const sidebarMenu = document.getElementById('sidebarMenu');
-            const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-            userMenuBtn?.addEventListener('click', () => {
-                sidebarMenu.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
-            });
-
-            sidebarOverlay.addEventListener('click', () => {
-                sidebarMenu.classList.remove('show');
-                sidebarOverlay.classList.remove('show');
-            });
         });
     </script>
-
-    <!-- Bootstrap Icons CDN -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 </body>
 </html>
+
 

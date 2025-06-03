@@ -17,8 +17,6 @@ public interface IUserService
     Task<User?> GetByUsernameAsync(string username);
     Task<Response<string>> RegisterUserAsync(UserRegisterDTO dto);
     Task<Response<UserTokenDTO>> RegisterApiUserAsync(UserRegisterDTO dto);
-    bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt);
-    void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt);
 }
 
 public class UserService : IUserService
@@ -49,7 +47,7 @@ public class UserService : IUserService
             Email = dto.Email,
             PasswordHash = passwordHash,
             PasswordSalt = passwordSalt,
-            RoleId = 2
+            RoleId = dto.RoleId
         };
 
         _context.Users.Add(user);
@@ -93,14 +91,14 @@ public class UserService : IUserService
     }
 
     // Métodos privados para hash de contraseña
-    public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+    private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
     {
         using var hmac = new HMACSHA512();
         passwordSalt = hmac.Key; // Clave aleatoria
         passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
     }
 
-    public bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
+    private bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
     {
         using var hmac = new HMACSHA512(storedSalt);
         var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
