@@ -146,7 +146,7 @@ public class UserService : IUserService
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Role, (await _context.Roles.FindAsync(user.RoleId))?.Name ?? "")
             }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
@@ -159,7 +159,7 @@ public class UserService : IUserService
                 Result = new UserTokenDTO
                 {
                     Token = tokenHandler.WriteToken(token),
-                    Expiration = tokenDescriptor.Expires ?? DateTime.UtcNow.AddDays(7)
+                    Expiration = tokenDescriptor.Expires ?? DateTime.UtcNow.AddHours(1)
                 }
             };
         }

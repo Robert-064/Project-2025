@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project_2025_Web.DTO;
 using Project_2025_Web.DTOs;
@@ -97,7 +97,7 @@ namespace Project_2025_Web.Controllers.Api
             {
                 return BadRequest(response.Message);
             }
-            return NoContent();
+            return Ok(new { message = "reservacion eliminada con exito" });
         }
     }
 }
