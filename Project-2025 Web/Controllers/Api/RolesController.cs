@@ -106,7 +106,7 @@ namespace Project_2025_Web.Controllers.Api
             _context.RolePermissions.RemoveRange(role.RolePermissions);
             _context.Roles.Remove(role);
             await _context.SaveChangesAsync();
-            return NoContent();
+            return Ok(new { message = "rol eliminado con exito" });
         }
     }
 }

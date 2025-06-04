@@ -119,7 +119,7 @@ namespace Project_2025_Web.Controllers.Api
             {
                 return BadRequest(response.Message);
             }
-            return NoContent();
+            return Ok(new { message = "paquete eliminado con exito" });
         }
     }
 }
