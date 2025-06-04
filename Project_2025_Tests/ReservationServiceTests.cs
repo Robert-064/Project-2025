@@ -4,15 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-//  ← ESTA LÍNEA NECESARIA
 using AutoMapper;
-
-// ← Estos must match exactamente el namespace donde definiste cada clase en tu proyecto principal:
-using Project_2025_Web.Data;           // DataContext
-using Project_2025_Web.Data.Entities;  // Role, User, Plan, MappingProfile
-using Project_2025_Web.DTOs;           // ReservationDTO, ReservationFilterDTO
-using Project_2025_Web.Services;       // IReservationService, ReservationService
+using Project_2025_Web.Data;         
+using Project_2025_Web.Data.Entities;
+using Project_2025_Web.DTOs;         
+using Project_2025_Web.Services;
 
 namespace Project_2025_Tests
 {
@@ -24,7 +20,6 @@ namespace Project_2025_Tests
         [TestInitialize]
         public void TestInitialize()
         {
-            // Configuramos AutoMapper con tu MappingProfile real:
             var mapperConfig = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(new MappingProfile());
@@ -40,7 +35,6 @@ namespace Project_2025_Tests
 
             var ctx = new DataContext(options);
 
-            // Semilla mínima: Role, User y Plan
             ctx.Roles.Add(new Role { Id = 1, Name = "User" });
             ctx.Users.Add(new User
             {
@@ -68,19 +62,15 @@ namespace Project_2025_Tests
         [TestMethod]
         public async Task GetListAsync_WhenNoReservations_ReturnsEmptyResponse()
         {
-            // Arrange
             var ctx = CreateInMemoryContext();
             var service = new ReservationService(ctx, _mapper);
 
-            // Act
             var response = await service.GetListAsync();
 
-            // Assert
             Assert.IsTrue(response.IsSucess);
             Assert.IsNotNull(response.Result);
             Assert.AreEqual(0, response.Result.Count);
         }
 
-        // ... aquí van el resto de tus TestMethod ...
     }
 }

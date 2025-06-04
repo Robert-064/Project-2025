@@ -7,9 +7,6 @@ using Microsoft.Extensions.Options;
 
 namespace Project_2025_Tests
 {
-    /// <summary>
-    /// Manejador de autenticación de prueba que siempre autentica con un usuario “TestUser”.
-    /// </summary>
     public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         public TestAuthHandler(
@@ -23,7 +20,6 @@ namespace Project_2025_Tests
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            // Creamos un ClaimsPrincipal “falso” con un claim NameIdentifier = "1"
             var claims = new[] { new Claim(ClaimTypes.NameIdentifier, "1") };
             var identity = new ClaimsIdentity(claims, "Test");
             var principal = new ClaimsPrincipal(identity);

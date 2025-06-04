@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Project_2025_Web;              // <-- Asegúrate de que Program está en este namespace
+using Project_2025_Web;
 using Project_2025_Web.Data;
-using Project_2025_Web.Data.Entities; // Role, User, Plan
-using Project_2025_Web.DTOs;         // ReservationDTO
+using Project_2025_Web.Data.Entities;
+using Project_2025_Web.DTOs;
 using System;
 using System.Linq;
 using System.Net;
@@ -30,44 +30,37 @@ namespace Project_2025_Tests
                 {
                     builder.ConfigureServices(services =>
                     {
-                        // 1) Removemos el DbContext real
                         var descriptor = services.Single(d =>
                             d.ServiceType == typeof(DbContextOptions<DataContext>));
                         services.Remove(descriptor);
 
-                        // 2) Registramos InMemory
                         services.AddDbContext<DataContext>(options =>
                         {
                             options.UseInMemoryDatabase("IntegrationTestDb");
                         });
 
-                        // 3) Registramos autenticación “Test”
                         services.AddAuthentication("Test")
                             .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
                                 "Test", options => { });
 
-                        // 4) Registramos DummyPermissionService para IPermissionService
                         services.AddScoped<IPermissionService, DummyPermissionService>();
 
-                        // 5) Semillamos datos mínimos
                         var sp = services.BuildServiceProvider();
                         using (var scope = sp.CreateScope())
                         {
                             var ctx = scope.ServiceProvider.GetRequiredService<DataContext>();
                             ctx.Database.EnsureCreated();
 
-                            // Semilla Role
                             ctx.Roles.Add(new Role { Id = 1, Name = "User" });
-                            // Semilla User:
+
                             ctx.Users.Add(new User
                             {
                                 Id = 1,
                                 Username = "integrationUser",
                                 Email = "int@example.com",
-                                PasswordHash = new byte[0],  // <--- si tu entidad usa byte[]
+                                PasswordHash = new byte[0],
                                 RoleId = 1
                             });
-                            // Semilla Plan:
                             ctx.Plans.Add(new Plan
                             {
                                 Id = 1,
